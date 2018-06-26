@@ -77,14 +77,18 @@ namespace freelist
     using t_entry  = freelist::t_entry<T>;
     using p_entry  = t_entry*;
     using p_centry = const t_entry*;
+    using r_entry  = t_entry&;
+    using r_centry = const t_entry&;
     using t_value  = T;
     using p_value  = T*;
     using p_cvalue = const T*;
+    using r_value  = T&;
+    using r_cvalue = const T&;
 
     inline
     t_freelist_impl_(p_entry _entry, t_n_ max) : size_{0}, free_{0} {
       for (t_n_ i = 0; i < max; /**/) {
-        t_entry& entry = _entry[i++];
+        r_entry entry = _entry[i++];
         entry.free_ = i;
       }
     }
@@ -92,7 +96,7 @@ namespace freelist
     inline
     t_result insert(p_entry _entry, t_n_ max) {
       if (free_ < max) {
-        t_entry& entry = _entry[free_];
+        r_entry entry = _entry[free_];
         t_result tmp(free_, entry.store_.default_construct());
         free_ = entry.free_;
         entry.free_ = USED;
@@ -103,9 +107,9 @@ namespace freelist
     }
 
     inline
-    t_result insert(p_entry _entry, t_n_ max, const t_value& value) {
+    t_result insert(p_entry _entry, t_n_ max, r_cvalue value) {
       if (free_ < max) {
-        t_entry& entry = _entry[free_];
+        r_entry entry = _entry[free_];
         t_result tmp(free_, entry.store_.copy_construct(value));
         free_ = entry.free_;
         entry.free_ = USED;
@@ -118,7 +122,7 @@ namespace freelist
     inline
     t_result insert(p_entry _entry, t_n_ max, t_value&& value) {
       if (free_ < max) {
-        t_entry& entry = _entry[free_];
+        r_entry entry = _entry[free_];
         t_result tmp(free_, entry.store_.move_construct(std::move(value)));
         free_ = entry.free_;
         entry.free_ = USED;
@@ -131,7 +135,7 @@ namespace freelist
     inline
     t_bool erase(p_entry _entry, t_n_ max, t_id id) {
       if (id < max) {
-        t_entry& entry = _entry[id];
+        r_entry entry = _entry[id];
         if (entry.free_ == USED) {
           CLEANUP(entry.store_.ref());
           entry.store_.destruct();
@@ -157,7 +161,7 @@ namespace freelist
     inline
     t_void clear(p_entry _entry, t_n_ max) {
       for (t_n_ i = 0; i < max; /* none */ ) {
-        t_entry& entry = _entry[i++];
+        r_entry entry = _entry[i++];
         if (entry.free_ == USED) {
           CLEANUP(entry.store_.ref());
           entry.store_.destruct();
@@ -186,7 +190,7 @@ namespace freelist
     inline
     p_value get(p_entry _entry, t_n_ max, t_id id) {
       if (id < max) {
-        t_entry& entry = _entry[id];
+        r_entry entry = _entry[id];
         if (entry.free_ == USED)
           return entry.store_.ptr();
       }
@@ -196,7 +200,7 @@ namespace freelist
     inline
     p_cvalue get(p_centry _entry, t_n_ max, t_id id) const {
       if (id < max) {
-        const t_entry& entry = _entry[id];
+        r_centry entry = _entry[id];
         if (entry.free_ == USED)
           return entry.store_.const_ptr();
       }
