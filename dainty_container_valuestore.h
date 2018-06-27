@@ -73,9 +73,11 @@ namespace valuestore
   class t_valuestore {
   public:
     using t_bytes  = t_uchar[sizeof(T)];
+    using r_bytes  = t_bytes&;
+    using r_cbytes = const t_bytes&;
     using t_value  = T;
-    using t_ref    = T&;
-    using t_cref   = const T&;
+    using r_value  = T&;
+    using r_cvalue = const T&;
     using p_value  = T*;
     using p_cvalue = const T*;
 
@@ -99,16 +101,17 @@ namespace valuestore
       destruct_(ptr());
     }
 
-    p_value   ptr()             { return mk_ptr(); }
-    p_cvalue  ptr() const       { return mk_ptr(); }
-    p_cvalue cptr() const       { return mk_ptr(); }
+    p_value   ptr()         { return mk_ptr(); }
+    p_cvalue  ptr() const   { return mk_ptr(); }
+    p_cvalue cptr() const   { return mk_ptr(); }
 
-    t_ref   ref()               { return *ptr(); }
-    t_cref  ref() const         { return *ptr(); }
-    t_cref cref() const         { return *cptr(); }
+    r_value   ref()         { return  *ptr(); }
+    r_cvalue  ref() const   { return  *ptr(); }
+    r_cvalue cref() const   { return *cptr(); }
 
-    t_bytes&       bytes()       { return store_; }
-    const t_bytes& bytes() const { return store_; }
+    r_bytes   bytes()       { return store_; }
+    r_cbytes  bytes() const { return store_; }
+    r_cbytes cbytes() const { return store_; }
 
   private:
     p_value mk_ptr() {
