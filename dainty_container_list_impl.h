@@ -138,7 +138,7 @@ namespace list
     }
 
     inline
-    p_cvalue get(p_store store, t_n_ max, t_ix_ ix) const {
+    p_cvalue get(p_cstore store, t_n_ max, t_ix_ ix) const {
       if (ix < max)
         return store[ix].cptr();
       return nullptr;

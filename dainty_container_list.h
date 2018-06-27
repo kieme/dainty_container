@@ -76,8 +76,9 @@ namespace list
     t_n    get_size() const;
     t_n    get_capacity() const;
 
-    p_value  operator[](t_ix);
-    p_cvalue operator[](t_ix) const;
+    p_value   get(t_ix);
+    p_cvalue  get(t_ix) const;
+    p_cvalue cget(t_ix) const;
 
   private:
     typename t_impl_::t_entry store_[N];
@@ -118,8 +119,9 @@ namespace list
     t_n    get_size() const;
     t_n    get_capacity() const;
 
-    p_value  operator[](t_ix);
-    p_cvalue operator[](t_ix) const;
+    p_value   get(t_ix);
+    p_cvalue  get(t_ix) const;
+    p_cvalue cget(t_ix) const;
 
   private:
     t_n_                      max_;
@@ -149,19 +151,19 @@ namespace list
   template<typename T, t_n_ N>
   inline
   typename t_list<T, N>::p_value t_list<T, N>::push_back() {
-    return impl_.clear(store_, N);
+    return impl_.push_back(store_, N);
   }
 
   template<typename T, t_n_ N>
   inline
   typename t_list<T, N>::p_value t_list<T, N>::push_back(r_cvalue value) {
-    return impl_.clear(store_, N, value);
+    return impl_.push_back(store_, N, value);
   }
 
   template<typename T, t_n_ N>
   inline
   typename t_list<T, N>::p_value t_list<T, N>::push_back(t_value&& value) {
-    return impl_.clear(store_, N, std::move(value));
+    return impl_.push_back(store_, N, std::move(value));
   }
 
   template<typename T, t_n_ N>
@@ -208,13 +210,19 @@ namespace list
 
   template<typename T, t_n_ N>
   inline
-  typename t_list<T, N>::p_value t_list<T, N>::operator[](t_ix ix) {
+  typename t_list<T, N>::p_value t_list<T, N>::get(t_ix ix) {
     return impl_.get(store_, N, named::get(ix));
   }
 
   template<typename T, t_n_ N>
   inline
-  typename t_list<T, N>::p_cvalue t_list<T, N>::operator[](t_ix ix) const {
+  typename t_list<T, N>::p_cvalue t_list<T, N>::get(t_ix ix) const {
+    return impl_.get(store_, N, named::get(ix));
+  }
+
+  template<typename T, t_n_ N>
+  inline
+  typename t_list<T, N>::p_cvalue t_list<T, N>::cget(t_ix ix) const {
     return impl_.get(store_, N, named::get(ix));
   }
 
@@ -301,13 +309,19 @@ namespace list
 
   template<typename T>
   inline
-  typename t_list<T, 0>::p_value t_list<T, 0>::operator[](t_ix ix) {
+  typename t_list<T, 0>::p_value t_list<T, 0>::get(t_ix ix) {
     return impl_.get(store_, max_, named::get(ix));
   }
 
   template<typename T>
   inline
-  typename t_list<T, 0>::p_cvalue t_list<T, 0>::operator[](t_ix ix) const {
+  typename t_list<T, 0>::p_cvalue t_list<T, 0>::get(t_ix ix) const {
+    return impl_.get(store_, max_, named::get(ix));
+  }
+
+  template<typename T>
+  inline
+  typename t_list<T, 0>::p_cvalue t_list<T, 0>::cget(t_ix ix) const {
     return impl_.get(store_, max_, named::get(ix));
   }
 

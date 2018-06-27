@@ -28,6 +28,7 @@
 #define _DAINTY_CONTAINER_VALUESTORE_H_
 
 #include <utility>
+#include <memory>
 #include "dainty_named.h"
 
 namespace dainty

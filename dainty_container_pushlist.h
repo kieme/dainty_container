@@ -66,8 +66,9 @@ namespace pushlist
     t_n    get_size     () const;
     t_n    get_capacity () const;
 
-    p_value  operator[](t_ix);
-    p_cvalue operator[](t_ix) const;
+    p_value   get(t_ix);
+    p_cvalue  get(t_ix) const;
+    p_cvalue cget(t_ix) const;
 
   private:
     t_impl_ impl_;
@@ -103,8 +104,9 @@ namespace pushlist
     t_n    get_size     () const;
     t_n    get_capacity () const;
 
-    p_value  operator[](t_ix);
-    p_cvalue operator[](t_ix) const;
+    p_value   get(t_ix);
+    p_cvalue  get(t_ix) const;
+    p_cvalue cget(t_ix) const;
 
   private:
     t_impl_ impl_;
@@ -169,16 +171,20 @@ namespace pushlist
 
   template<typename T, t_n_ N>
   inline
-  typename t_pushlist<T, N>::p_value
-    t_pushlist<T, N>::operator[](t_ix ix) {
-    return impl_.operator[](ix);
+  typename t_pushlist<T, N>::p_value t_pushlist<T, N>::get(t_ix ix) {
+    return impl_.get(ix);
   }
 
   template<typename T, t_n_ N>
   inline
-  typename t_pushlist<T, N>::p_cvalue
-    t_pushlist<T, N>::operator[](t_ix ix) const {
-    return impl_.operator[](ix);
+  typename t_pushlist<T, N>::p_cvalue t_pushlist<T, N>::get(t_ix ix) const {
+    return impl_.get(ix);
+  }
+
+  template<typename T, t_n_ N>
+  inline
+  typename t_pushlist<T, N>::p_cvalue t_pushlist<T, N>::cget(t_ix ix) const {
+    return impl_.cget(ix);
   }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -246,15 +252,20 @@ namespace pushlist
 
   template<typename T>
   inline
-  typename t_pushlist<T, 0>::p_value t_pushlist<T, 0>::operator[](t_ix ix) {
-    return impl_.operator[](ix);
+  typename t_pushlist<T, 0>::p_value t_pushlist<T, 0>::get(t_ix ix) {
+    return impl_.get(ix);
   }
 
   template<typename T>
   inline
-  typename t_pushlist<T, 0>::p_cvalue
-    t_pushlist<T, 0>::operator[](t_ix ix) const {
-    return impl_.operator[](ix);
+  typename t_pushlist<T, 0>::p_cvalue t_pushlist<T, 0>::get(t_ix ix) const {
+    return impl_.get(ix);
+  }
+
+  template<typename T>
+  inline
+  typename t_pushlist<T, 0>::p_cvalue t_pushlist<T, 0>::cget(t_ix ix) const {
+    return impl_.cget(ix);
   }
 
 ///////////////////////////////////////////////////////////////////////////////
