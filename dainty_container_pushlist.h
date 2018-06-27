@@ -28,7 +28,7 @@
 #define _DAINTY_CONTAINER_H_
 
 #include "dainty_named.h"
-#include "dainty_container_pushlist_impl.h"
+#include "dainty_container_list.h"
 
 namespace dainty
 {
@@ -36,65 +36,65 @@ namespace container
 {
 namespace pushlist
 {
-  using named::t_ix;
-  using named::t_validity;
-  using named::VALID;
-  using named::INVALID;
+  using namespace dainty::container::list;
 
 ///////////////////////////////////////////////////////////////////////////////
 
   template<typename T, t_n_ N = 0>
   class t_pushlist {
-    using t_impl_ = t_pushlist_impl_<T>;
+    using t_impl_ = t_list<T, N>;
   public:
     using t_value  = typename t_impl_::t_value;
     using p_value  = typename t_impl_::p_value;
     using p_cvalue = typename t_impl_::p_cvalue;
 
     t_pushlist();
-    ~t_pushlist();
+
+    t_pushlist(const t_pushlist&) = delete;
+    t_pushlist(t_pushlist&&) = delete;
+    t_pushlist& operator=(const t_pushlist&) = delete;
+    t_pushlist& operator=(t_pushlist&&) = delete;
 
     operator t_validity() const;
 
     p_value push_back();
     p_value push_back(const t_value&);
     p_value push_back(t_value&&);
-    t_bool  pop_back();
-
-    t_void clear();
 
     t_bool is_full      () const;
     t_bool is_empty     () const;
     t_n    get_size     () const;
     t_n    get_capacity () const;
 
-          t_value& operator[](t_ix);
-    const t_value& operator[](t_ix) const;
+    p_value  operator[](t_ix);
+    p_cvalue operator[](t_ix) const;
 
   private:
-    typename t_impl_::t_store store_[N];
-    t_impl_                    impl_;
+    t_impl_ impl_;
   };
 
 ///////////////////////////////////////////////////////////////////////////////
 
   template<typename T>
   class t_pushlist<T, 0> {
-    using t_impl_ = t_pushlist_impl_<T>;
+    using t_impl_ = t_list<T, 0>;
   public:
     using t_value  = typename t_impl_::t_value;
     using p_value  = typename t_impl_::p_value;
     using p_cvalue = typename t_impl_::p_cvalue;
 
     t_pushlist(t_n max);
-    ~t_pushlist();
+
+    t_pushlist(const t_pushlist&) = delete;
+    t_pushlist(t_pushlist&&) = delete;
+    t_pushlist& operator=(const t_pushlist&) = delete;
+    t_pushlist& operator=(t_pushlist&&) = delete;
 
     operator t_validity() const;
 
     p_value push_back();
     p_value push_back(const t_value&);
     p_value push_back(t_value&&);
-    t_bool  pop_back();
 
     t_void clear();
 
@@ -103,13 +103,11 @@ namespace pushlist
     t_n    get_size     () const;
     t_n    get_capacity () const;
 
-          t_value& operator[](t_ix);
-    const t_value& operator[](t_ix) const;
+    p_value  operator[](t_ix);
+    p_cvalue operator[](t_ix) const;
 
   private:
-    t_n_                       max_;
-    typename t_impl_::t_store* store_;
-    t_impl_                    impl_;
+    t_impl_ impl_;
   };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -121,52 +119,40 @@ namespace pushlist
 
   template<typename T, t_n_ N>
   inline
-  t_pushlist<T, N>::~t_pushlist() {
-    clear();
-  }
-
-  template<typename T, t_n_ N>
-  inline
   t_pushlist<T, N>::operator t_validity() const {
-    return VALID;
+    return impl_.operator t_validity();
   }
 
   template<typename T, t_n_ N>
   inline
   typename t_pushlist<T, N>::p_value t_pushlist<T, N>::push_back() {
-    return impl_.push_back(store_, N);
+    return impl_.push_back();
   }
 
   template<typename T, t_n_ N>
   inline
   typename t_pushlist<T, N>::p_value
     t_pushlist<T, N>::push_back(const t_value& value) {
-    return impl_.push_back(store_, N, value);
+    return impl_.push_back(value);
   }
 
   template<typename T, t_n_ N>
   inline
   typename t_pushlist<T, N>::p_value
     t_pushlist<T, N>::push_back(t_value&& value) {
-    return impl_.push_back(store_, N, std::move(value));
-  }
-
-  template<typename T, t_n_ N>
-  inline
-  t_bool t_pushlist<T, N>::pop_back() {
-    return impl_.pop_back(store_);
+    return impl_.push_back(std::move(value));
   }
 
   template<typename T, t_n_ N>
   inline
   t_void t_pushlist<T, N>::clear() {
-    return impl_.clear(store_);
+    return impl_.clear();
   }
 
   template<typename T, t_n_ N>
   inline
   t_bool t_pushlist<T, N>::is_full() const {
-    return impl_.is_full(N);
+    return impl_.is_full();
   }
 
   template<typename T, t_n_ N>
@@ -178,86 +164,72 @@ namespace pushlist
   template<typename T, t_n_ N>
   inline
   t_n t_pushlist<T, N>::get_size() const {
-    return t_n{impl_.get_size(store_)};
+    return impl_.get_size();
   }
 
   template<typename T, t_n_ N>
   inline
   t_n t_pushlist<T, N>::get_capacity() const {
-    return t_n{N};
+    return impl_.get_capacity();
   }
 
   template<typename T, t_n_ N>
   inline
-  typename t_pushlist<T, N>::t_value&
+  typename t_pushlist<T, N>::p_value
     t_pushlist<T, N>::operator[](t_ix ix) {
-    return impl_.get(store_, N, named::get(ix));
+    return impl_.operator[](ix);
   }
 
   template<typename T, t_n_ N>
   inline
-  const typename t_pushlist<T, N>::t_value&
+  typename t_pushlist<T, N>::p_cvalue
     t_pushlist<T, N>::operator[](t_ix ix) const {
-    return impl_.get(store_, N, named::get(ix));
+    return impl_.operator[](ix);
   }
 
 ///////////////////////////////////////////////////////////////////////////////
 
   template<typename T>
   inline
-  t_pushlist<T, 0>::t_pushlist(t_n max)
-    : max_{get(max)}, store_{new typename t_impl_::t_store[max_]} {
-  }
-
-  template<typename T>
-  inline
-  t_pushlist<T, 0>::~t_pushlist() {
-    clear();
-    delete [] store_;
+  t_pushlist<T, 0>::t_pushlist(t_n max) : impl_{max} {
   }
 
   template<typename T>
   inline
   t_pushlist<T, 0>::operator t_validity() const {
-    return store_ ? VALID : INVALID;
+    return impl_.operator t_validity();
   }
 
   template<typename T>
   inline
   typename t_pushlist<T, 0>::p_value t_pushlist<T, 0>::push_back() {
-    return impl_.push_back(store_, max_);
+    return impl_.push_back();
   }
 
   template<typename T>
   inline
   typename t_pushlist<T, 0>::p_value
     t_pushlist<T, 0>::push_back(const t_value& value) {
-    return impl_.push_back(store_, max_, value);
+    return impl_.push_back(value);
   }
 
   template<typename T>
   inline
   typename t_pushlist<T, 0>::p_value
     t_pushlist<T, 0>::push_back(t_value&& value) {
-    return impl_.push_back(store_, max_, std::move(value));
-  }
-
-  template<typename T>
-  inline
-  t_bool t_pushlist<T, 0>::pop_back() {
-    return impl_.pop_back(store_);
+    return impl_.push_back(std::move(value));
   }
 
   template<typename T>
   inline
   t_void t_pushlist<T, 0>::clear() {
-    return impl_.clear(store_);
+    return impl_.clear();
   }
 
   template<typename T>
   inline
   t_bool t_pushlist<T, 0>::is_full() const {
-    return impl_.is_full(max_);
+    return impl_.is_full();
   }
 
   template<typename T>
@@ -269,27 +241,26 @@ namespace pushlist
   template<typename T>
   inline
   t_n t_pushlist<T, 0>::get_size() const {
-    return t_n{impl_.get_size(store_)};
+    return impl_.get_size();
   }
 
   template<typename T>
   inline
   t_n t_pushlist<T, 0>::get_capacity() const {
-    return t_n{max_};
+    return impl_.get_capacity();
   }
 
   template<typename T>
   inline
-  typename t_pushlist<T, 0>::t_value&
-    t_pushlist<T, 0>::operator[](t_ix ix) {
-    return impl_.get(store_, max_, named::get(ix));
+  typename t_pushlist<T, 0>::p_value t_pushlist<T, 0>::operator[](t_ix ix) {
+    return impl_.operator[](ix);
   }
 
   template<typename T>
   inline
-  const typename t_pushlist<T, 0>::t_value&
+  typename t_pushlist<T, 0>::p_cvalue
     t_pushlist<T, 0>::operator[](t_ix ix) const {
-    return impl_.get(store_, max_, named::get(ix));
+    return impl_.operator[](ix);
   }
 
 ///////////////////////////////////////////////////////////////////////////////

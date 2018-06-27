@@ -24,8 +24,8 @@
 
 ******************************************************************************/
 
-#ifndef _DAINTY_CONTAINER_PUSHLIST_H_
-#define _DAINTY_CONTAINER_PUSHLIST_H_
+#ifndef _DAINTY_CONTAINER_LIST_IMPL_H_
+#define _DAINTY_CONTAINER_LIST_IMPL_H_
 
 #include "dainty_named.h"
 #include "dainty_container_valuestore.h"
@@ -34,26 +34,27 @@ namespace dainty
 {
 namespace container
 {
-namespace pushlist
+namespace list
 {
   using named::t_bool;
   using named::t_void;
   using named::t_n_;
-  using named::t_n;
   using named::t_ix_;
 
+///////////////////////////////////////////////////////////////////////////////
+
   template<typename T>
-  class t_pushlist_impl_ {
+  class t_list_impl_ {
   public:
-    using t_store  = valuestore::t_valuestore<T>;
-    using p_store  = t_store*;
-    using p_cstore = const t_store*;
+    using p_store  = valuestore::t_valuestore<t_value>*;
+    using p_cstore = const valuestore::t_valuestore<t_value>*;
     using t_value  = T;
     using p_value  = T*;
     using p_cvalue = const T*;
+    using r_cvalue = const T&;
 
     inline
-    t_pushlist_impl_() : next_(0) {
+    t_list_impl_() : next_(0) {
     }
 
     inline
@@ -64,7 +65,7 @@ namespace pushlist
     }
 
     inline
-    p_value push_back(p_store store, t_n_ max, const t_value& value) {
+    p_value push_back(p_store store, t_n_ max, r_cvalue value) {
       if (next_ < max)
         return store[next_++].copy_construct(value);
       return nullptr;
@@ -87,6 +88,32 @@ namespace pushlist
     }
 
     inline
+    t_bool erase(p_store store, t_ix_ ix) {
+      if (ix < next_) {
+        while (1) {
+          store[ix].destruct();
+          t_ix_ nix = ix + 1;
+          if (nix < next_)
+            store[ix].copy_construct(store_[nix].ref());
+          else
+            break;
+          ix = nix;
+        }
+        --next_;
+        return true;
+      }
+      return false;
+    }
+
+    inline
+    void clear(p_store store) {
+      if (next_) {
+        valuestore::destruct_(store, next_);
+        next_ = 0;
+      }
+    }
+
+    inline
     t_bool is_full(t_n_ max) const {
       return next_ == max;
     }
@@ -102,26 +129,17 @@ namespace pushlist
     }
 
     inline
-    t_value& get(p_store store, t_n_ max, t_ix_ ix) {
+    p_value get(p_store store, t_n_ max, t_ix_ ix) {
       if (ix < max)
-        return store[ix].ref();
+        return store[ix].ptr();
       return nullptr;
     }
 
     inline
-    const t_value& get(p_cstore store, t_n_ max, t_ix_ ix) const {
+    p_cvalue get(p_store store, t_n_ max, t_ix_ ix) const {
       if (ix < max)
-        return store[ix].const_ref();
+        return store[ix].cptr();
       return nullptr;
-    }
-
-    inline
-    t_void clear(p_store store) {
-      if (next_) {
-        //valuestore::destruct_(store, next_);
-        destruct_(store, t_n{next_});
-        next_ = 0;
-      }
     }
 
   private:
