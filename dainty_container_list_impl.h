@@ -38,6 +38,7 @@ namespace list
 {
   using named::t_bool;
   using named::t_void;
+  using named::t_n;
   using named::t_n_;
   using named::t_ix_;
 
@@ -46,8 +47,9 @@ namespace list
   template<typename T>
   class t_list_impl_ {
   public:
-    using p_store  = valuestore::t_valuestore<t_value>*;
-    using p_cstore = const valuestore::t_valuestore<t_value>*;
+    using t_entry  = valuestore::t_valuestore<T>;
+    using p_store  = t_entry*;
+    using p_cstore = const t_entry*;
     using t_value  = T;
     using p_value  = T*;
     using p_cvalue = const T*;
@@ -94,7 +96,7 @@ namespace list
           store[ix].destruct();
           t_ix_ nix = ix + 1;
           if (nix < next_)
-            store[ix].copy_construct(store_[nix].ref());
+            store[ix].copy_construct(store[nix].ref());
           else
             break;
           ix = nix;
@@ -108,7 +110,7 @@ namespace list
     inline
     void clear(p_store store) {
       if (next_) {
-        valuestore::destruct_(store, next_);
+        valuestore::destruct_(store, t_n{next_});
         next_ = 0;
       }
     }

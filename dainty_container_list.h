@@ -223,7 +223,7 @@ namespace list
   template<typename T>
   inline
   t_list<T, 0>::t_list(t_n max)
-    : max_{named::get(max)}, store_{new typename t_impl_::t_store[max_]} {
+    : max_{named::get(max)}, store_{new typename t_impl_::t_entry[max_]} {
   }
 
   template<typename T>

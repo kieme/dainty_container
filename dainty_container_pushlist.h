@@ -145,12 +145,6 @@ namespace pushlist
 
   template<typename T, t_n_ N>
   inline
-  t_void t_pushlist<T, N>::clear() {
-    return impl_.clear();
-  }
-
-  template<typename T, t_n_ N>
-  inline
   t_bool t_pushlist<T, N>::is_full() const {
     return impl_.is_full();
   }
