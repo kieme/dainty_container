@@ -83,6 +83,10 @@ namespace freelist
     p_cvalue  get(t_id) const;
     p_cvalue cget(t_id) const;
 
+    template<typename F> t_void  each(F);
+    template<typename F> t_void  each(F) const;
+    template<typename F> t_void ceach(F) const;
+
   private:
     typename t_impl_::t_entry store_[N];
     t_impl_ impl_;
@@ -128,6 +132,10 @@ namespace freelist
     p_cvalue  get(t_id) const;
     p_cvalue cget(t_id) const;
 
+    template<typename F> t_void  each(F);
+    template<typename F> t_void  each(F) const;
+    template<typename F> t_void ceach(F) const;
+
   private:
     t_n_ max_;
     typename t_impl_::p_entry store_;
@@ -157,39 +165,39 @@ namespace freelist
   inline
   typename t_freelist<T, N, CLEANUP>::t_result
     t_freelist<T, N, CLEANUP>::insert() {
-    return impl_.insert(&store_[0], N);
+    return impl_.insert(store_, N);
   }
 
   template<typename T, t_n_ N, t_void (*CLEANUP)(T&)>
   inline
   typename t_freelist<T, N, CLEANUP>::t_result
     t_freelist<T, N, CLEANUP>::insert(const t_value& value) {
-    return impl_.insert(&store_[0], N, value);
+    return impl_.insert(store_, N, value);
   }
 
   template<typename T, t_n_ N, t_void (*CLEANUP)(T&)>
   inline
   typename t_freelist<T, N, CLEANUP>::t_result
     t_freelist<T, N, CLEANUP>::insert(t_value&& value) {
-    return impl_.insert(&store_[0], N, std::move(value));
+    return impl_.insert(store_, N, std::move(value));
   }
 
   template<typename T, t_n_ N, t_void (*CLEANUP)(T&)>
   inline
   t_bool t_freelist<T, N, CLEANUP>::erase(t_id id) {
-    return impl_.erase(&store_[0], N, id);
+    return impl_.erase(store_, N, named::get(id));
   }
 
   template<typename T, t_n_ N, t_void (*CLEANUP)(T&)>
   inline
   t_bool t_freelist<T, N, CLEANUP>::erase(p_cvalue p) {
-    return impl_.erase(&store_[0], N, p);
+    return impl_.erase(store_, N, p);
   }
 
   template<typename T, t_n_ N, t_void (*CLEANUP)(T&)>
   inline
   t_void t_freelist<T, N, CLEANUP>::clear() {
-    impl_.clear(&store_[0], N);
+    impl_.clear(store_, N);
   }
 
   template<typename T, t_n_ N, t_void (*CLEANUP)(T&)>
@@ -220,21 +228,42 @@ namespace freelist
   inline
   typename t_freelist<T, N, CLEANUP>::p_value
     t_freelist<T, N, CLEANUP>::get(t_id id) {
-    return impl_.get(&store_[0], N, id);
+    return impl_.get(store_, N, named::get(id));
   }
 
   template<typename T, t_n_ N, t_void (*CLEANUP)(T&)>
   inline
   typename t_freelist<T, N, CLEANUP>::p_cvalue
     t_freelist<T, N, CLEANUP>::get(t_id id) const {
-    return impl_.get(&store_[0], N, id);
+    return impl_.get(store_, N, named::get(id));
   }
 
   template<typename T, t_n_ N, t_void (*CLEANUP)(T&)>
   inline
   typename t_freelist<T, N, CLEANUP>::p_cvalue
     t_freelist<T, N, CLEANUP>::cget(t_id id) const {
-    return impl_.get(&store_[0], N, id);
+    return impl_.get(store_, N, named::get(id));
+  }
+
+  template<typename T, t_n_ N, t_void (*CLEANUP)(T&)>
+  template<typename F>
+  inline
+  t_void t_freelist<T, N, CLEANUP>::each(F f) {
+    impl_.each(store_, N, f);
+  }
+
+  template<typename T, t_n_ N, t_void (*CLEANUP)(T&)>
+  template<typename F>
+  inline
+  t_void t_freelist<T, N, CLEANUP>::each(F f) const {
+    impl_.each(store_, N, f);
+  }
+
+  template<typename T, t_n_ N, t_void (*CLEANUP)(T&)>
+  template<typename F>
+  inline
+  t_void t_freelist<T, N, CLEANUP>::ceach(F f) const {
+    impl_.each(store_, N, f);
   }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -283,7 +312,7 @@ namespace freelist
   template<typename T, t_void (*CLEANUP)(T&)>
   inline
   t_bool t_freelist<T, 0, CLEANUP>::erase(t_id id) {
-    return impl_.erase(store_, max_, id);
+    return impl_.erase(store_, max_, named::get(id));
   }
 
   template<typename T, t_void (*CLEANUP)(T&)>
@@ -326,21 +355,42 @@ namespace freelist
   inline
   typename t_freelist<T, 0, CLEANUP>::p_value
     t_freelist<T, 0, CLEANUP>::get(t_id id) {
-    return impl_.get(store_, max_, id);
+    return impl_.get(store_, max_, named::get(id));
   }
 
   template<typename T, t_void (*CLEANUP)(T&)>
   inline
   typename t_freelist<T, 0, CLEANUP>::p_cvalue
     t_freelist<T, 0, CLEANUP>::get(t_id id) const {
-    return impl_.get(store_, max_, id);
+    return impl_.get(store_, max_, named::get(id));
   }
 
   template<typename T, t_void (*CLEANUP)(T&)>
   inline
   typename t_freelist<T, 0, CLEANUP>::p_cvalue
     t_freelist<T, 0, CLEANUP>::cget(t_id id) const {
-    return impl_.get(store_, max_, id);
+    return impl_.get(store_, max_, named::get(id));
+  }
+
+  template<typename T, t_void (*CLEANUP)(T&)>
+  template<typename F>
+  inline
+  t_void t_freelist<T, 0, CLEANUP>::each(F f) {
+    impl_.each(store_, max_, f);
+  }
+
+  template<typename T, t_void (*CLEANUP)(T&)>
+  template<typename F>
+  inline
+  t_void t_freelist<T, 0, CLEANUP>::each(F f) const {
+    impl_.each(store_, max_, f);
+  }
+
+  template<typename T, t_void (*CLEANUP)(T&)>
+  template<typename F>
+  inline
+  t_void t_freelist<T, 0, CLEANUP>::ceach(F f) const {
+    impl_.each(store_, max_, f);
   }
 
 ///////////////////////////////////////////////////////////////////////////////

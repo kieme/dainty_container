@@ -43,20 +43,24 @@ namespace freelist
   using named::t_bool;
   using named::t_n_;
 
-  using t_id = named::t_uint;
+  enum  t_id_tag_ {};
+  using t_id_ = named::t_ix_;
+  using t_id  = named::t_explicit<t_id_, t_id_tag_>;
 
   template<typename T>
   struct t_result {
     using t_id    = freelist::t_id;
     using p_value = T*;
+    using r_value = T&;
 
     t_id    id;
     p_value ptr;
 
-    inline t_result()                       : id(0),   ptr(nullptr) { }
-    inline t_result(t_id _id, p_value _ptr) : id(_id), ptr(_ptr)    { }
+    inline t_result()                        : id(0),   ptr(nullptr) { }
+    inline t_result(t_id_ _id, p_value _ptr) : id(_id), ptr(_ptr)    { }
 
-    inline operator t_bool() const                      { return ptr; }
+    inline operator t_bool() const                      { return  ptr; }
+    inline r_value operator*()                          { return *ptr; }
   };
 
   template<typename T>
@@ -133,7 +137,7 @@ namespace freelist
     }
 
     inline
-    t_bool erase(p_entry _entry, t_n_ max, t_id id) {
+    t_bool erase(p_entry _entry, t_n_ max, t_id_ id) {
       if (id < max) {
         r_entry entry = _entry[id];
         if (entry.free_ == USED) {
@@ -188,7 +192,7 @@ namespace freelist
     }
 
     inline
-    p_value get(p_entry _entry, t_n_ max, t_id id) {
+    p_value get(p_entry _entry, t_n_ max, t_id_ id) {
       if (id < max) {
         r_entry entry = _entry[id];
         if (entry.free_ == USED)
@@ -198,14 +202,35 @@ namespace freelist
     }
 
     inline
-    p_cvalue get(p_centry _entry, t_n_ max, t_id id) const {
+    p_cvalue get(p_centry _entry, t_n_ max, t_id_ id) const {
       if (id < max) {
         r_centry entry = _entry[id];
         if (entry.free_ == USED)
-          return entry.store_.const_ptr();
+          return entry.store_.cptr();
       }
       return nullptr;
     }
+
+    template<typename F>
+    inline
+    t_void each(p_entry _entry, t_n_ max, F f) {
+      for (t_id_ id = 0; id < max; ++id) {
+        r_entry entry = _entry[id];
+        if (entry.free_ == USED)
+          f(t_id{id}, entry.store_.ref());
+      }
+    }
+
+    template<typename F>
+    inline
+    t_void each(p_centry _entry, t_n_ max, F f) const {
+      for (t_id_ id = 0; id < max; ++id) {
+        r_centry entry = _entry[id];
+        if (entry.free_ == USED)
+          f(t_id{id}, entry.store_.cref());
+      }
+    }
+
 
   private:
     t_n_ size_;

@@ -80,6 +80,10 @@ namespace list
     p_cvalue  get(t_ix) const;
     p_cvalue cget(t_ix) const;
 
+    template<typename F> t_void  each(F);
+    template<typename F> t_void  each(F) const;
+    template<typename F> t_void ceach(F) const;
+
   private:
     typename t_impl_::t_entry store_[N];
     t_impl_                   impl_;
@@ -122,6 +126,10 @@ namespace list
     p_value   get(t_ix);
     p_cvalue  get(t_ix) const;
     p_cvalue cget(t_ix) const;
+
+    template<typename F> t_void  each(F);
+    template<typename F> t_void  each(F) const;
+    template<typename F> t_void ceach(F) const;
 
   private:
     t_n_                      max_;
@@ -226,6 +234,27 @@ namespace list
     return impl_.get(store_, N, named::get(ix));
   }
 
+  template<typename T, t_n_ N>
+  template<typename F>
+  inline
+  t_void t_list<T, N>::each(F f) {
+    impl_.each(store_, f);
+  }
+
+  template<typename T, t_n_ N>
+  template<typename F>
+  inline
+  t_void t_list<T, N>::each(F f) const {
+    impl_.each(store_, f);
+  }
+
+  template<typename T, t_n_ N>
+  template<typename F>
+  inline
+  t_void t_list<T, N>::ceach(F f) const {
+    impl_.each(store_, f);
+  }
+
 ///////////////////////////////////////////////////////////////////////////////
 
   template<typename T>
@@ -250,19 +279,19 @@ namespace list
   template<typename T>
   inline
   typename t_list<T, 0>::p_value t_list<T, 0>::push_back() {
-    return impl_.clear(store_, max_);
+    return impl_.push_back(store_, max_);
   }
 
   template<typename T>
   inline
   typename t_list<T, 0>::p_value t_list<T, 0>::push_back(r_cvalue value) {
-    return impl_.clear(store_, max_, value);
+    return impl_.push_back(store_, max_, value);
   }
 
   template<typename T>
   inline
   typename t_list<T, 0>::p_value t_list<T, 0>::push_back(t_value&& value) {
-    return impl_.clear(store_, max_, std::move(value));
+    return impl_.push_back(store_, max_, std::move(value));
   }
 
   template<typename T>
@@ -323,6 +352,27 @@ namespace list
   inline
   typename t_list<T, 0>::p_cvalue t_list<T, 0>::cget(t_ix ix) const {
     return impl_.get(store_, max_, named::get(ix));
+  }
+
+  template<typename T>
+  template<typename F>
+  inline
+  t_void t_list<T, 0>::each(F f) {
+    impl_.each(store_, f);
+  }
+
+  template<typename T>
+  template<typename F>
+  inline
+  t_void t_list<T, 0>::each(F f) const {
+    impl_.each(store_, f);
+  }
+
+  template<typename T>
+  template<typename F>
+  inline
+  t_void t_list<T, 0>::ceach(F f) const {
+    impl_.each(store_, f);
   }
 
 ///////////////////////////////////////////////////////////////////////////////

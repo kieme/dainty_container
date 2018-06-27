@@ -70,6 +70,10 @@ namespace pushlist
     p_cvalue  get(t_ix) const;
     p_cvalue cget(t_ix) const;
 
+    template<typename F> t_void  each(F);
+    template<typename F> t_void  each(F) const;
+    template<typename F> t_void ceach(F) const;
+
   private:
     t_impl_ impl_;
   };
@@ -107,6 +111,10 @@ namespace pushlist
     p_value   get(t_ix);
     p_cvalue  get(t_ix) const;
     p_cvalue cget(t_ix) const;
+
+    template<typename F> t_void  each(F);
+    template<typename F> t_void  each(F) const;
+    template<typename F> t_void ceach(F) const;
 
   private:
     t_impl_ impl_;
@@ -185,6 +193,27 @@ namespace pushlist
   inline
   typename t_pushlist<T, N>::p_cvalue t_pushlist<T, N>::cget(t_ix ix) const {
     return impl_.cget(ix);
+  }
+
+  template<typename T, t_n_ N>
+  template<typename F>
+  inline
+  t_void t_pushlist<T, N>::each(F f) {
+    impl_.each(f);
+  }
+
+  template<typename T, t_n_ N>
+  template<typename F>
+  inline
+  t_void t_pushlist<T, N>::each(F f) const {
+    impl_.each(f);
+  }
+
+  template<typename T, t_n_ N>
+  template<typename F>
+  inline
+  t_void t_pushlist<T, N>::ceach(F f) const {
+    impl_.each(f);
   }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -266,6 +295,27 @@ namespace pushlist
   inline
   typename t_pushlist<T, 0>::p_cvalue t_pushlist<T, 0>::cget(t_ix ix) const {
     return impl_.cget(ix);
+  }
+
+  template<typename T>
+  template<typename F>
+  inline
+  t_void t_pushlist<T, 0>::each(F f) {
+    impl_.each(f);
+  }
+
+  template<typename T>
+  template<typename F>
+  inline
+  t_void t_pushlist<T, 0>::each(F f) const {
+    impl_.each(f);
+  }
+
+  template<typename T>
+  template<typename F>
+  inline
+  t_void t_pushlist<T, 0>::ceach(F f) const {
+    impl_.each(f);
   }
 
 ///////////////////////////////////////////////////////////////////////////////

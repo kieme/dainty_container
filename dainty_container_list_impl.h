@@ -144,6 +144,20 @@ namespace list
       return nullptr;
     }
 
+    template<typename F>
+    inline
+    t_void each(p_store store, F f) {
+      for (t_ix_ ix = 0; ix < next_; ++ix)
+        f(store[ix].ref());
+    }
+
+    template<typename F>
+    inline
+    t_void each(p_cstore store, F f) const {
+      for (t_ix_ ix = 0; ix < next_; ++ix)
+        f(store[ix].cref());
+    }
+
   private:
     t_n_ next_;
   };
