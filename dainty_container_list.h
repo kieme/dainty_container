@@ -67,6 +67,10 @@ namespace list
     p_value push_back(r_cvalue value);
     p_value push_back(t_value&& value);
 
+    p_value insert(t_ix);
+    p_value insert(t_ix, r_cvalue value);
+    p_value insert(t_ix, t_value&& value);
+
     t_bool pop_back();
     t_bool erase(t_ix);
     t_void clear();
@@ -113,6 +117,10 @@ namespace list
     p_value push_back();
     p_value push_back(r_cvalue value);
     p_value push_back(t_value&& value);
+
+    p_value insert(t_ix);
+    p_value insert(t_ix, r_cvalue value);
+    p_value insert(t_ix, t_value&& value);
 
     t_bool pop_back();
     t_bool erase(t_ix);
@@ -172,6 +180,26 @@ namespace list
   inline
   typename t_list<T, N>::p_value t_list<T, N>::push_back(t_value&& value) {
     return impl_.push_back(store_, N, std::move(value));
+  }
+
+  template<typename T, t_n_ N>
+  inline
+  typename t_list<T, N>::p_value t_list<T, N>::insert(t_ix ix) {
+    return impl_.insert(store_, N, named::get(ix));
+  }
+
+  template<typename T, t_n_ N>
+  inline
+  typename t_list<T, N>::p_value t_list<T, N>::insert(t_ix ix,
+                                                      r_cvalue value) {
+    return impl_.insert(store_, N, named::get(ix), value);
+  }
+
+  template<typename T, t_n_ N>
+  inline
+  typename t_list<T, N>::p_value t_list<T, N>::insert(t_ix ix,
+                                                      t_value&& value) {
+    return impl_.insert(store_, N, named::get(ix), std::move(value));
   }
 
   template<typename T, t_n_ N>
@@ -292,6 +320,26 @@ namespace list
   inline
   typename t_list<T, 0>::p_value t_list<T, 0>::push_back(t_value&& value) {
     return impl_.push_back(store_, max_, std::move(value));
+  }
+
+  template<typename T>
+  inline
+  typename t_list<T, 0>::p_value t_list<T, 0>::insert(t_ix ix) {
+    return impl_.insert(store_, max_, named::get(ix));
+  }
+
+  template<typename T>
+  inline
+  typename t_list<T, 0>::p_value t_list<T, 0>::insert(t_ix ix,
+                                                      r_cvalue value) {
+    return impl_.insert(store_, max_, named::get(ix), value);
+  }
+
+  template<typename T>
+  inline
+  typename t_list<T, 0>::p_value t_list<T, 0>::insert(t_ix ix,
+                                                      t_value&& value) {
+    return impl_.insert(store_, max_, named::get(ix), std::move(value));
   }
 
   template<typename T>

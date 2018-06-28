@@ -81,6 +81,45 @@ namespace list
     }
 
     inline
+    p_value insert(p_store store, t_n_ max, t_ix_ ix) {
+      if (next_ < max && ix < next_) {
+        for (t_ix_ i = next_++; i > ix; /**/) {
+          const t_ix_ x = i--;
+          store[x].move_construct(std::move(store[i].ref()));
+          store[i].destruct();
+        }
+        return store[ix].default_construct();
+      }
+      return nullptr;
+    }
+
+    inline
+    p_value insert(p_store store, t_n_ max, t_ix_ ix, r_cvalue value) {
+      if (next_ < max && ix < next_) {
+        for (t_ix_ i = next_++; i > ix; /**/) {
+          const t_ix_ x = i--;
+          store[x].move_construct(std::move(store[i].ref()));
+          store[i].destruct();
+        }
+        return store[ix].copy_construct(value);
+      }
+      return nullptr;
+    }
+
+    inline
+    p_value insert(p_store store, t_n_ max, t_ix_ ix, t_value&& value) {
+      if (next_ < max && ix < next_) {
+        for (t_ix_ i = next_++; i > ix; /**/) {
+          const t_ix_ x = i--;
+          store[x].move_construct(std::move(store[i].ref()));
+          store[i].destruct();
+        }
+        return store[ix].move_construct(std::move(value));
+      }
+      return nullptr;
+    }
+
+    inline
     t_bool pop_back(p_store store) {
       if (next_) {
         store[--next_].destruct();

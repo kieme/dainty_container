@@ -85,16 +85,16 @@ namespace valuestore
       return sizeof(T);
     }
 
+    p_value default_construct() {
+      return construct_(ptr());
+    }
+
     p_value copy_construct(const T& value) {
       return construct_(ptr(), value);
     }
 
     p_value move_construct(T&& value) {
       return construct_(ptr(), std::move(value));
-    }
-
-    p_value default_construct() {
-      return construct_(ptr());
     }
 
     t_void destruct() {
