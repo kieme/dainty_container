@@ -49,9 +49,11 @@ namespace freelist
 
   template<typename T>
   struct t_result {
-    using t_id    = freelist::t_id;
-    using p_value = T*;
-    using r_value = T&;
+    using t_id     = freelist::t_id;
+    using r_value  = T&;
+    using r_cvalue = const T&;
+    using p_value  = T*;
+    using p_cvalue = const T*;
 
     t_id    id;
     p_value ptr;
@@ -60,7 +62,10 @@ namespace freelist
     inline t_result(t_id_ _id, p_value _ptr) : id(_id), ptr(_ptr)    { }
 
     inline operator t_bool() const                      { return  ptr; }
-    inline r_value operator*()                          { return *ptr; }
+    inline r_value  operator*()                         { return *ptr; }
+    inline r_cvalue operator*() const                   { return *ptr; }
+    inline p_value  operator->()                        { return  ptr; }
+    inline p_cvalue operator->() const                  { return  ptr; }
   };
 
   template<typename T>
