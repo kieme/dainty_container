@@ -340,14 +340,14 @@ namespace map
     inline
     p_keyvalue get(t_ix ix) {
       if (named::get(ix) < named::get(ids_.get_size()))
-        return store_.get(*ids_[ix]);
+        return &store_.get(*ids_.get(ix))->keyvalue;
       return nullptr;
     }
 
     inline
     p_ckeyvalue get(t_ix ix) const {
       if (named::get(ix) < named::get(ids_.get_size()))
-        return store_.get(*ids_[ix]);
+        return &store_.get(*ids_.get(ix))->keyvalue;
       return nullptr;
     }
 
@@ -355,7 +355,7 @@ namespace map
     p_keyvalue get(t_id id) {
       auto entry = store_.get(id);
       if (entry)
-        return &entry.keyvalue;
+        return &entry->keyvalue;
       return nullptr;
     }
 
@@ -363,7 +363,7 @@ namespace map
     p_ckeyvalue get(t_id id) const {
       auto entry = store_.get(id);
       if (entry)
-        return &entry.keyvalue;
+        return &entry->keyvalue;
       return nullptr;
     }
 

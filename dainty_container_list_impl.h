@@ -89,7 +89,8 @@ namespace list
           store[i].destruct();
         }
         return store[ix].default_construct();
-      }
+      } else if ((!next_ && !ix) || (ix == next_))
+        return push_back(store, max);
       return nullptr;
     }
 
@@ -102,7 +103,8 @@ namespace list
           store[i].destruct();
         }
         return store[ix].copy_construct(value);
-      }
+      } else if ((!next_ && !ix) || (ix == next_))
+        return push_back(store, max, value);
       return nullptr;
     }
 
@@ -115,7 +117,8 @@ namespace list
           store[i].destruct();
         }
         return store[ix].move_construct(std::move(value));
-      }
+      } else if ((!next_ && !ix) || (ix == next_))
+        return push_back(store, max, value);
       return nullptr;
     }
 
