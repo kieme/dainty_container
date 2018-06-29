@@ -82,44 +82,41 @@ namespace list
 
     inline
     p_value insert(p_store store, t_n_ max, t_ix_ ix) {
-      if (next_ < max && ix < next_) {
-        for (t_ix_ i = next_++; i > ix; /**/) {
-          const t_ix_ x = i--;
-          store[x].move_construct(std::move(store[i].ref()));
-          store[i].destruct();
-        }
-        return store[ix].default_construct();
-      } else if ((!next_ && !ix) || (ix == next_))
-        return push_back(store, max);
-      return nullptr;
+      p_value p = nullptr;
+      if (next_ < max) {
+        if (ix < next_) {
+          move_up_(store, ix, next_++);
+          p = store[ix].default_construct();
+        } else if ((!next_ && !ix) || (ix == next_))
+          p = push_back(store, max);
+      }
+      return p;
     }
 
     inline
     p_value insert(p_store store, t_n_ max, t_ix_ ix, r_cvalue value) {
-      if (next_ < max && ix < next_) {
-        for (t_ix_ i = next_++; i > ix; /**/) {
-          const t_ix_ x = i--;
-          store[x].move_construct(std::move(store[i].ref()));
-          store[i].destruct();
-        }
-        return store[ix].copy_construct(value);
-      } else if ((!next_ && !ix) || (ix == next_))
-        return push_back(store, max, value);
-      return nullptr;
+      p_value p = nullptr;
+      if (next_ < max) {
+        if (ix < next_) {
+          move_up_(store, ix, next_++);
+          p = store[ix].copy_construct(value);
+        } else if ((!next_ && !ix) || (ix == next_))
+          p = push_back(store, max, value);
+      }
+      return p;
     }
 
     inline
     p_value insert(p_store store, t_n_ max, t_ix_ ix, t_value&& value) {
-      if (next_ < max && ix < next_) {
-        for (t_ix_ i = next_++; i > ix; /**/) {
-          const t_ix_ x = i--;
-          store[x].move_construct(std::move(store[i].ref()));
-          store[i].destruct();
-        }
-        return store[ix].move_construct(std::move(value));
-      } else if ((!next_ && !ix) || (ix == next_))
-        return push_back(store, max, value);
-      return nullptr;
+      p_value p = nullptr;
+      if (next_ < max) {
+        if (ix < next_) {
+          move_up_(store, ix, next_++);
+          p = store[ix].move_construct(std::move(value));
+        } else if ((!next_ && !ix) || (ix == next_))
+          p = push_back(store, max, std::move(value));
+      }
+      return p;
     }
 
     inline
@@ -134,16 +131,8 @@ namespace list
     inline
     t_bool erase(p_store store, t_ix_ ix) {
       if (ix < next_) {
-        while (1) {
-          store[ix].destruct();
-          t_ix_ nix = ix + 1;
-          if (nix < next_)
-            store[ix].copy_construct(store[nix].ref());
-          else
-            break;
-          ix = nix;
-        }
-        --next_;
+        store[ix].destruct();
+        move_down_(store, ix, --next_);
         return true;
       }
       return false;
@@ -201,6 +190,24 @@ namespace list
     }
 
   private:
+    inline
+    t_void move_up_(p_store store, t_ix_ ix, t_ix_ max) {
+      for (t_ix_ i = max; i > ix; /**/) {
+        const t_ix_ x = i--;
+        store[x].move_construct(std::move(store[i].ref()));
+        store[i].destruct();
+      }
+    }
+
+    inline
+    t_void move_down_(p_store store, t_ix_ ix, t_ix_ max) {
+      for (t_ix_ i = ix; i < max; /**/) {
+        const t_ix_ x = i++;
+        store[x].move_construct(std::move(store[i].ref()));
+        store[i].destruct();
+      }
+    }
+
     t_n_ next_;
   };
 }
