@@ -28,6 +28,7 @@
 #define _DAINTY_CONTAINER_LIST_IMPL_H_
 
 #include "dainty_named.h"
+#include "dainty_container_err.h"
 #include "dainty_container_valuestore.h"
 
 namespace dainty

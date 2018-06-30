@@ -53,40 +53,57 @@ namespace list
     using p_cvalue = typename t_impl_::p_cvalue;
     using r_cvalue = typename t_impl_::r_cvalue;
 
-    t_list();
+     t_list();
     ~t_list();
 
-    t_list(const t_list&) = delete;
-    t_list(t_list&&) = delete;
+    t_list(const t_list&)            = delete;
+    t_list(t_list&&)                 = delete;
     t_list& operator=(const t_list&) = delete;
-    t_list& operator=(t_list&&) = delete;
+    t_list& operator=(t_list&&)      = delete;
 
     operator t_validity() const;
 
     p_value push_back();
-    p_value push_back(r_cvalue value);
-    p_value push_back(t_value&& value);
+    p_value push_back(t_err);
+    p_value push_back(       r_cvalue value);
+    p_value push_back(t_err, r_cvalue value);
+    p_value push_back(       t_value&& value);
+    p_value push_back(t_err, t_value&& value);
 
-    p_value insert(t_ix);
-    p_value insert(t_ix, r_cvalue value);
-    p_value insert(t_ix, t_value&& value);
+    p_value insert(       t_ix);
+    p_value insert(t_err, t_ix);
+    p_value insert(       t_ix, r_cvalue value);
+    p_value insert(t_err, t_ix, r_cvalue value);
+    p_value insert(       t_ix, t_value&& value);
+    p_value insert(t_err, t_ix, t_value&& value);
 
     t_bool pop_back();
-    t_bool erase(t_ix);
+    t_bool pop_back(t_err);
+
+    t_bool erase(       t_ix);
+    t_bool erase(t_err, t_ix);
+
     t_void clear();
+    t_void clear(t_err);
 
     t_bool is_full () const;
     t_bool is_empty() const;
     t_n    get_size() const;
     t_n    get_capacity() const;
 
-    p_value   get(t_ix);
-    p_cvalue  get(t_ix) const;
-    p_cvalue cget(t_ix) const;
+    p_value   get(       t_ix);
+    p_value   get(t_err, t_ix);
+    p_cvalue  get(       t_ix) const;
+    p_cvalue  get(t_err, t_ix) const;
+    p_cvalue cget(       t_ix) const;
+    p_cvalue cget(t_err, t_ix) const;
 
-    template<typename F> t_void  each(F);
-    template<typename F> t_void  each(F) const;
-    template<typename F> t_void ceach(F) const;
+    template<typename F> t_void  each(       F);
+    template<typename F> t_void  each(t_err, F);
+    template<typename F> t_void  each(       F) const;
+    template<typename F> t_void  each(t_err, F) const;
+    template<typename F> t_void ceach(       F) const;
+    template<typename F> t_void ceach(t_err, F) const;
 
   private:
     typename t_impl_::t_entry store_[N];
@@ -104,40 +121,58 @@ namespace list
     using p_cvalue = typename t_impl_::p_cvalue;
     using r_cvalue = typename t_impl_::r_cvalue;
 
-    t_list(t_n max);
+     t_list(       t_n max);
+     t_list(t_err, t_n max);
     ~t_list();
 
-    t_list(const t_list&) = delete;
-    t_list(t_list&&) = delete;
+    t_list(const t_list&)            = delete;
+    t_list(t_list&&)                 = delete;
     t_list& operator=(const t_list&) = delete;
-    t_list& operator=(t_list&&) = delete;
+    t_list& operator=(t_list&&)      = delete;
 
     operator t_validity() const;
 
     p_value push_back();
-    p_value push_back(r_cvalue value);
-    p_value push_back(t_value&& value);
+    p_value push_back(t_err);
+    p_value push_back(       r_cvalue);
+    p_value push_back(t_err, r_cvalue);
+    p_value push_back(       t_value&&);
+    p_value push_back(t_err, t_value&&);
 
-    p_value insert(t_ix);
-    p_value insert(t_ix, r_cvalue value);
-    p_value insert(t_ix, t_value&& value);
+    p_value insert(       t_ix);
+    p_value insert(t_err, t_ix);
+    p_value insert(       t_ix, r_cvalue);
+    p_value insert(t_err, t_ix, r_cvalue);
+    p_value insert(       t_ix, t_value&&);
+    p_value insert(t_err, t_ix, t_value&&);
 
     t_bool pop_back();
-    t_bool erase(t_ix);
+    t_bool pop_back(t_err);
+
+    t_bool erase(       t_ix);
+    t_bool erase(t_err, t_ix);
+
     t_void clear();
+    t_void clear(t_err);
 
     t_bool is_full () const;
     t_bool is_empty() const;
     t_n    get_size() const;
     t_n    get_capacity() const;
 
-    p_value   get(t_ix);
-    p_cvalue  get(t_ix) const;
-    p_cvalue cget(t_ix) const;
+    p_value   get(       t_ix);
+    p_value   get(t_err, t_ix);
+    p_cvalue  get(       t_ix) const;
+    p_cvalue  get(t_err, t_ix) const;
+    p_cvalue cget(       t_ix) const;
+    p_cvalue cget(t_err, t_ix) const;
 
-    template<typename F> t_void  each(F);
-    template<typename F> t_void  each(F) const;
-    template<typename F> t_void ceach(F) const;
+    template<typename F> t_void  each(       F);
+    template<typename F> t_void  each(t_err, F);
+    template<typename F> t_void  each(       F) const;
+    template<typename F> t_void  each(t_err, F) const;
+    template<typename F> t_void ceach(       F) const;
+    template<typename F> t_void ceach(t_err, F) const;
 
   private:
     t_n_                      max_;
