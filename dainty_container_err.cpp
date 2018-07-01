@@ -31,6 +31,7 @@ namespace dainty
 namespace container
 {
   oops::t_def err_what(oops::t_id) {
+    return {};
   }
 }
 }

@@ -68,9 +68,29 @@ namespace list
     }
 
     inline
+    p_value push_back(t_err& err, p_store store, t_n_ max) {
+      T_ERR_GUARD(err) {
+        if (next_ < max)
+          return store[next_++].default_construct();
+        err =  E2; //XXX
+      }
+      return nullptr;
+    }
+
+    inline
     p_value push_back(p_store store, t_n_ max, r_cvalue value) {
       if (next_ < max)
         return store[next_++].copy_construct(value);
+      return nullptr;
+    }
+
+    inline
+    p_value push_back(t_err& err, p_store store, t_n_ max, r_cvalue value) {
+      T_ERR_GUARD(err) {
+        if (next_ < max)
+          return store[next_++].copy_construct(value);
+        err =  E2; //XXX
+      }
       return nullptr;
     }
 
@@ -82,42 +102,97 @@ namespace list
     }
 
     inline
+    p_value push_back(t_err& err, p_store store, t_n_ max, t_value&& value) {
+      T_ERR_GUARD(err) {
+        if (next_ < max)
+          return store[next_++].move_construct(std::move(value));
+        err =  E2; //XXX
+      }
+      return nullptr;
+    }
+
+    inline
     p_value insert(p_store store, t_n_ max, t_ix_ ix) {
-      p_value p = nullptr;
       if (next_ < max) {
         if (ix < next_) {
           move_up_(store, ix, next_++);
-          p = store[ix].default_construct();
+          return store[ix].default_construct();
         } else if ((!next_ && !ix) || (ix == next_))
-          p = push_back(store, max);
+          return push_back(store, max);
       }
-      return p;
+      return nullptr;
+    }
+
+    inline
+    p_value insert(t_err& err, p_store store, t_n_ max, t_ix_ ix) {
+      T_ERR_GUARD(err) {
+        if (next_ < max) {
+          if (ix < next_) {
+            move_up_(store, ix, next_++);
+            return store[ix].default_construct();
+          } else if ((!next_ && !ix) || (ix == next_))
+            return push_back(store, max);
+          err = E1; //XXX
+        } else
+          err = E2; //XXX
+      }
+      return nullptr;
     }
 
     inline
     p_value insert(p_store store, t_n_ max, t_ix_ ix, r_cvalue value) {
-      p_value p = nullptr;
       if (next_ < max) {
         if (ix < next_) {
           move_up_(store, ix, next_++);
-          p = store[ix].copy_construct(value);
+          return store[ix].copy_construct(value);
         } else if ((!next_ && !ix) || (ix == next_))
-          p = push_back(store, max, value);
+          return push_back(store, max, value);
       }
-      return p;
+      return nullptr;
+    }
+
+    inline
+    p_value insert(t_err& err, p_store store, t_n_ max, t_ix_ ix, r_cvalue value) {
+      T_ERR_GUARD(err) {
+        if (next_ < max) {
+          if (ix < next_) {
+            move_up_(store, ix, next_++);
+            return store[ix].copy_construct(value);
+          } else if ((!next_ && !ix) || (ix == next_))
+            return push_back(store, max, value);
+          err = E1; //XXX
+        } else
+          err = E2; //XXX
+      }
+      return nullptr;
     }
 
     inline
     p_value insert(p_store store, t_n_ max, t_ix_ ix, t_value&& value) {
-      p_value p = nullptr;
       if (next_ < max) {
         if (ix < next_) {
           move_up_(store, ix, next_++);
-          p = store[ix].move_construct(std::move(value));
+          return store[ix].move_construct(std::move(value));
         } else if ((!next_ && !ix) || (ix == next_))
-          p = push_back(store, max, std::move(value));
+          return push_back(store, max, std::move(value));
       }
-      return p;
+      return nullptr;
+    }
+
+    inline
+    p_value insert(t_err& err, p_store store, t_n_ max, t_ix_ ix, t_value&& value) {
+      T_ERR_GUARD(err) {
+        if (next_ < max) {
+          if (ix < next_) {
+            move_up_(store, ix, next_++);
+            return store[ix].move_construct(std::move(value));
+          } else if ((!next_ && !ix) || (ix == next_))
+            return push_back(store, max, std::move(value));
+          err = E1; //XXX
+        } else
+          err = E2; //XXX
+      }
+      return nullptr;
     }
 
     inline
@@ -125,6 +200,18 @@ namespace list
       if (next_) {
         store[--next_].destruct();
         return true;
+      }
+      return false;
+    }
+
+    inline
+    t_bool pop_back(t_err& err, p_store store) {
+      T_ERR_GUARD(err) {
+        if (next_) {
+          store[--next_].destruct();
+          return true;
+        }
+        err = E3; //XXX
       }
       return false;
     }
@@ -140,10 +227,33 @@ namespace list
     }
 
     inline
-    void clear(p_store store) {
+    t_bool erase(t_err& err, p_store store, t_ix_ ix) {
+      T_ERR_GUARD(err) {
+        if (ix < next_) {
+          store[ix].destruct();
+          move_down_(store, ix, --next_);
+          return true;
+        }
+        err = E3; //XXX
+      }
+      return false;
+    }
+
+    inline
+    t_void clear(p_store store) {
       if (next_) {
         valuestore::destruct_(store, t_n{next_});
         next_ = 0;
+      }
+    }
+
+    inline
+    t_void clear(t_err& err, p_store store) {
+      T_ERR_GUARD(err) {
+        if (next_) {
+          valuestore::destruct_(store, t_n{next_});
+          next_ = 0;
+        }
       }
     }
 
@@ -163,16 +273,36 @@ namespace list
     }
 
     inline
-    p_value get(p_store store, t_n_ max, t_ix_ ix) {
-      if (ix < max)
+    p_value get(p_store store, t_ix_ ix) {
+      if (ix < next_)
         return store[ix].ptr();
       return nullptr;
     }
 
     inline
-    p_cvalue get(p_cstore store, t_n_ max, t_ix_ ix) const {
-      if (ix < max)
+    p_value get(t_err& err, p_store store, t_ix_ ix) {
+      T_ERR_GUARD(err) {
+        if (ix < next_)
+          return store[ix].ptr();
+        err = E3; //XXX
+      }
+      return nullptr;
+    }
+
+    inline
+    p_cvalue get(p_cstore store, t_ix_ ix) const {
+      if (ix < next_)
         return store[ix].cptr();
+      return nullptr;
+    }
+
+    inline
+    p_cvalue get(t_err& err, p_cstore store, t_ix_ ix) const {
+      T_ERR_GUARD(err) {
+        if (ix < next_)
+          return store[ix].cptr();
+        err = E3; //XXX
+      }
       return nullptr;
     }
 
@@ -185,9 +315,27 @@ namespace list
 
     template<typename F>
     inline
+    t_void each(t_err& err, p_store store, F f) {
+      T_ERR_GUARD(err) {
+        for (t_ix_ ix = 0; ix < next_; ++ix)
+          f(store[ix].ref());
+      }
+    }
+
+    template<typename F>
+    inline
     t_void each(p_cstore store, F f) const {
       for (t_ix_ ix = 0; ix < next_; ++ix)
         f(store[ix].cref());
+    }
+
+    template<typename F>
+    inline
+    t_void each(t_err& err, p_cstore store, F f) const {
+      T_ERR_GUARD(err) {
+        for (t_ix_ ix = 0; ix < next_; ++ix)
+          f(store[ix].cref());
+      }
     }
 
   private:

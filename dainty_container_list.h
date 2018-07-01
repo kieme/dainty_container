@@ -207,8 +207,20 @@ namespace list
 
   template<typename T, t_n_ N>
   inline
+  typename t_list<T, N>::p_value t_list<T, N>::push_back(t_err err) {
+    return impl_.push_back(err, store_, N);
+  }
+
+  template<typename T, t_n_ N>
+  inline
   typename t_list<T, N>::p_value t_list<T, N>::push_back(r_cvalue value) {
     return impl_.push_back(store_, N, value);
+  }
+
+  template<typename T, t_n_ N>
+  inline
+  typename t_list<T, N>::p_value t_list<T, N>::push_back(t_err err, r_cvalue value) {
+    return impl_.push_back(err, store_, N, value);
   }
 
   template<typename T, t_n_ N>
@@ -219,8 +231,20 @@ namespace list
 
   template<typename T, t_n_ N>
   inline
+  typename t_list<T, N>::p_value t_list<T, N>::push_back(t_err err, t_value&& value) {
+    return impl_.push_back(err, store_, N, std::move(value));
+  }
+
+  template<typename T, t_n_ N>
+  inline
   typename t_list<T, N>::p_value t_list<T, N>::insert(t_ix ix) {
     return impl_.insert(store_, N, named::get(ix));
+  }
+
+  template<typename T, t_n_ N>
+  inline
+  typename t_list<T, N>::p_value t_list<T, N>::insert(t_err err, t_ix ix) {
+    return impl_.insert(err, store_, N, named::get(ix));
   }
 
   template<typename T, t_n_ N>
@@ -232,9 +256,23 @@ namespace list
 
   template<typename T, t_n_ N>
   inline
+  typename t_list<T, N>::p_value t_list<T, N>::insert(t_err err, t_ix ix,
+                                                      r_cvalue value) {
+    return impl_.insert(err, store_, N, named::get(ix), value);
+  }
+
+  template<typename T, t_n_ N>
+  inline
   typename t_list<T, N>::p_value t_list<T, N>::insert(t_ix ix,
                                                       t_value&& value) {
     return impl_.insert(store_, N, named::get(ix), std::move(value));
+  }
+
+  template<typename T, t_n_ N>
+  inline
+  typename t_list<T, N>::p_value t_list<T, N>::insert(t_err err, t_ix ix,
+                                                      t_value&& value) {
+    return impl_.insert(err, store_, N, named::get(ix), std::move(value));
   }
 
   template<typename T, t_n_ N>
@@ -245,14 +283,32 @@ namespace list
 
   template<typename T, t_n_ N>
   inline
+  t_bool t_list<T, N>::pop_back(t_err err) {
+    return impl_.pop_back(err, store_);
+  }
+
+  template<typename T, t_n_ N>
+  inline
   t_bool t_list<T, N>::erase(t_ix ix) {
     return impl_.erase(store_, named::get(ix));
   }
 
   template<typename T, t_n_ N>
   inline
+  t_bool t_list<T, N>::erase(t_err err, t_ix ix) {
+    return impl_.erase(err, store_, named::get(ix));
+  }
+
+  template<typename T, t_n_ N>
+  inline
   t_void t_list<T, N>::clear() {
     impl_.clear(store_);
+  }
+
+  template<typename T, t_n_ N>
+  inline
+  t_void t_list<T, N>::clear(t_err err) {
+    impl_.clear(err, store_);
   }
 
   template<typename T, t_n_ N>
@@ -282,19 +338,38 @@ namespace list
   template<typename T, t_n_ N>
   inline
   typename t_list<T, N>::p_value t_list<T, N>::get(t_ix ix) {
-    return impl_.get(store_, N, named::get(ix));
+    return impl_.get(store_, named::get(ix));
+  }
+
+  template<typename T, t_n_ N>
+  inline
+  typename t_list<T, N>::p_value t_list<T, N>::get(t_err err, t_ix ix) {
+    return impl_.get(err, store_, named::get(ix));
   }
 
   template<typename T, t_n_ N>
   inline
   typename t_list<T, N>::p_cvalue t_list<T, N>::get(t_ix ix) const {
-    return impl_.get(store_, N, named::get(ix));
+    return impl_.get(store_, named::get(ix));
+  }
+
+  template<typename T, t_n_ N>
+  inline
+  typename t_list<T, N>::p_cvalue t_list<T, N>::get(t_err err, t_ix ix) const {
+    return impl_.get(err, store_, named::get(ix));
   }
 
   template<typename T, t_n_ N>
   inline
   typename t_list<T, N>::p_cvalue t_list<T, N>::cget(t_ix ix) const {
-    return impl_.get(store_, N, named::get(ix));
+    return impl_.get(store_, named::get(ix));
+  }
+
+  template<typename T, t_n_ N>
+  inline
+  typename t_list<T, N>::p_cvalue t_list<T, N>::cget(t_err err,
+                                                     t_ix ix) const {
+    return impl_.get(err, store_, named::get(ix));
   }
 
   template<typename T, t_n_ N>
@@ -307,8 +382,22 @@ namespace list
   template<typename T, t_n_ N>
   template<typename F>
   inline
+  t_void t_list<T, N>::each(t_err err, F f) {
+    impl_.each(err, store_, f);
+  }
+
+  template<typename T, t_n_ N>
+  template<typename F>
+  inline
   t_void t_list<T, N>::each(F f) const {
     impl_.each(store_, f);
+  }
+
+  template<typename T, t_n_ N>
+  template<typename F>
+  inline
+  t_void t_list<T, N>::each(t_err err, F f) const {
+    impl_.each(err, store_, f);
   }
 
   template<typename T, t_n_ N>
@@ -318,12 +407,26 @@ namespace list
     impl_.each(store_, f);
   }
 
+  template<typename T, t_n_ N>
+  template<typename F>
+  inline
+  t_void t_list<T, N>::ceach(t_err err, F f) const {
+    impl_.each(err, store_, f);
+  }
+
 ///////////////////////////////////////////////////////////////////////////////
 
   template<typename T>
   inline
   t_list<T, 0>::t_list(t_n max)
     : max_{named::get(max)}, store_{new typename t_impl_::t_entry[max_]} {
+  }
+
+  template<typename T>
+  inline
+  t_list<T, 0>::t_list(t_err err, t_n max)
+    : max_{named::get(max)}, store_{new typename t_impl_::t_entry[max_]} {
+    // XXX
   }
 
   template<typename T>
@@ -347,8 +450,21 @@ namespace list
 
   template<typename T>
   inline
+  typename t_list<T, 0>::p_value t_list<T, 0>::push_back(t_err err) {
+    return impl_.push_back(err, store_, max_);
+  }
+
+  template<typename T>
+  inline
   typename t_list<T, 0>::p_value t_list<T, 0>::push_back(r_cvalue value) {
     return impl_.push_back(store_, max_, value);
+  }
+
+  template<typename T>
+  inline
+  typename t_list<T, 0>::p_value t_list<T, 0>::push_back(t_err err,
+                                                         r_cvalue value) {
+    return impl_.push_back(err, store_, max_, value);
   }
 
   template<typename T>
@@ -359,8 +475,21 @@ namespace list
 
   template<typename T>
   inline
+  typename t_list<T, 0>::p_value t_list<T, 0>::push_back(t_err err,
+                                                         t_value&& value) {
+    return impl_.push_back(err, store_, max_, std::move(value));
+  }
+
+  template<typename T>
+  inline
   typename t_list<T, 0>::p_value t_list<T, 0>::insert(t_ix ix) {
     return impl_.insert(store_, max_, named::get(ix));
+  }
+
+  template<typename T>
+  inline
+  typename t_list<T, 0>::p_value t_list<T, 0>::insert(t_err err, t_ix ix) {
+    return impl_.insert(err, store_, max_, named::get(ix));
   }
 
   template<typename T>
@@ -372,9 +501,23 @@ namespace list
 
   template<typename T>
   inline
+  typename t_list<T, 0>::p_value t_list<T, 0>::insert(t_err err, t_ix ix,
+                                                      r_cvalue value) {
+    return impl_.insert(err, store_, max_, named::get(ix), value);
+  }
+
+  template<typename T>
+  inline
   typename t_list<T, 0>::p_value t_list<T, 0>::insert(t_ix ix,
                                                       t_value&& value) {
     return impl_.insert(store_, max_, named::get(ix), std::move(value));
+  }
+
+  template<typename T>
+  inline
+  typename t_list<T, 0>::p_value t_list<T, 0>::insert(t_err err, t_ix ix,
+                                                      t_value&& value) {
+    return impl_.insert(err, store_, max_, named::get(ix), std::move(value));
   }
 
   template<typename T>
@@ -385,14 +528,32 @@ namespace list
 
   template<typename T>
   inline
+  t_bool t_list<T, 0>::pop_back(t_err err) {
+    return impl_.pop_back(err, store_);
+  }
+
+  template<typename T>
+  inline
   t_bool t_list<T, 0>::erase(t_ix ix) {
     return impl_.erase(store_, named::get(ix));
   }
 
   template<typename T>
   inline
+  t_bool t_list<T, 0>::erase(t_err err, t_ix ix) {
+    return impl_.erase(err, store_, named::get(ix));
+  }
+
+  template<typename T>
+  inline
   t_void t_list<T, 0>::clear() {
     impl_.clear(store_);
+  }
+
+  template<typename T>
+  inline
+  t_void t_list<T, 0>::clear(t_err err) {
+    impl_.clear(err, store_);
   }
 
   template<typename T>
@@ -427,14 +588,34 @@ namespace list
 
   template<typename T>
   inline
+  typename t_list<T, 0>::p_value t_list<T, 0>::get(t_err err, t_ix ix) {
+    return impl_.get(err, store_, max_, named::get(ix));
+  }
+
+  template<typename T>
+  inline
   typename t_list<T, 0>::p_cvalue t_list<T, 0>::get(t_ix ix) const {
     return impl_.get(store_, max_, named::get(ix));
   }
 
   template<typename T>
   inline
+  typename t_list<T, 0>::p_cvalue t_list<T, 0>::get(t_err err,
+                                                    t_ix ix) const {
+    return impl_.get(err, store_, max_, named::get(ix));
+  }
+
+  template<typename T>
+  inline
   typename t_list<T, 0>::p_cvalue t_list<T, 0>::cget(t_ix ix) const {
     return impl_.get(store_, max_, named::get(ix));
+  }
+
+  template<typename T>
+  inline
+  typename t_list<T, 0>::p_cvalue t_list<T, 0>::cget(t_err err,
+                                                     t_ix ix) const {
+    return impl_.get(err, store_, x_, named::get(ix));
   }
 
   template<typename T>
@@ -447,6 +628,13 @@ namespace list
   template<typename T>
   template<typename F>
   inline
+  t_void t_list<T, 0>::each(t_err err, F f) {
+    impl_.each(err, store_, f);
+  }
+
+  template<typename T>
+  template<typename F>
+  inline
   t_void t_list<T, 0>::each(F f) const {
     impl_.each(store_, f);
   }
@@ -454,8 +642,22 @@ namespace list
   template<typename T>
   template<typename F>
   inline
+  t_void t_list<T, 0>::each(t_err err, F f) const {
+    impl_.each(err, store_, f);
+  }
+
+  template<typename T>
+  template<typename F>
+  inline
   t_void t_list<T, 0>::ceach(F f) const {
     impl_.each(store_, f);
+  }
+
+  template<typename T>
+  template<typename F>
+  inline
+  t_void t_list<T, 0>::ceach(t_err err, F f) const {
+    impl_.each(err, store_, f);
   }
 
 ///////////////////////////////////////////////////////////////////////////////

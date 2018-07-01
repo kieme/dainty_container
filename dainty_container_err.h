@@ -36,11 +36,13 @@ namespace container
   enum t_err_codes {
   };
 
-  oops::t_def err_what(oops::t_id) {
-  }
+  oops::t_def err_what(oops::t_id);
 
   using t_err = oops::t_oops<err_what, t_err_codes>;
 }
 }
+
+#define T_ERR_GUARD_TAG(err, tagid) if DAINTY_OOPS_BLOCK_GUARD_TAG(err, tagid)
+#define T_ERR_GUARD(err)            if DAINTY_OOPS_BLOCK_GUARD(err)
 
 #endif
