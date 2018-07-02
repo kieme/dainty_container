@@ -72,7 +72,7 @@ namespace list
       T_ERR_GUARD(err) {
         if (next_ < max)
           return store[next_++].default_construct();
-        err =  E2; //XXX
+        err =  E_NO_SPACE;
       }
       return nullptr;
     }
@@ -89,7 +89,7 @@ namespace list
       T_ERR_GUARD(err) {
         if (next_ < max)
           return store[next_++].copy_construct(value);
-        err =  E2; //XXX
+        err =  E_NO_SPACE;
       }
       return nullptr;
     }
@@ -106,7 +106,7 @@ namespace list
       T_ERR_GUARD(err) {
         if (next_ < max)
           return store[next_++].move_construct(std::move(value));
-        err =  E2; //XXX
+        err =  E_NO_SPACE;
       }
       return nullptr;
     }
@@ -132,9 +132,9 @@ namespace list
             return store[ix].default_construct();
           } else if ((!next_ && !ix) || (ix == next_))
             return push_back(store, max);
-          err = E1; //XXX
+          err = E_INVALID_IX;
         } else
-          err = E2; //XXX
+          err = E_NO_SPACE;
       }
       return nullptr;
     }
@@ -160,9 +160,9 @@ namespace list
             return store[ix].copy_construct(value);
           } else if ((!next_ && !ix) || (ix == next_))
             return push_back(store, max, value);
-          err = E1; //XXX
+          err = E_INVALID_IX;
         } else
-          err = E2; //XXX
+          err = E_NO_SPACE;
       }
       return nullptr;
     }
@@ -188,9 +188,9 @@ namespace list
             return store[ix].move_construct(std::move(value));
           } else if ((!next_ && !ix) || (ix == next_))
             return push_back(store, max, std::move(value));
-          err = E1; //XXX
+          err = E_INVALID_IX;
         } else
-          err = E2; //XXX
+          err = E_NO_SPACE;
       }
       return nullptr;
     }
@@ -211,7 +211,7 @@ namespace list
           store[--next_].destruct();
           return true;
         }
-        err = E3; //XXX
+        err = E_NO_POP;
       }
       return false;
     }
@@ -234,7 +234,7 @@ namespace list
           move_down_(store, ix, --next_);
           return true;
         }
-        err = E3; //XXX
+        err = E_INVALID_IX;
       }
       return false;
     }
@@ -284,7 +284,7 @@ namespace list
       T_ERR_GUARD(err) {
         if (ix < next_)
           return store[ix].ptr();
-        err = E3; //XXX
+        err = E_INVALID_IX;
       }
       return nullptr;
     }
@@ -301,7 +301,7 @@ namespace list
       T_ERR_GUARD(err) {
         if (ix < next_)
           return store[ix].cptr();
-        err = E3; //XXX
+        err = E_INVALID_IX;
       }
       return nullptr;
     }

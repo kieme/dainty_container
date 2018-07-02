@@ -425,15 +425,19 @@ namespace list
   template<typename T>
   inline
   t_list<T, 0>::t_list(t_err err, t_n max)
-    : max_{named::get(max)}, store_{new typename t_impl_::t_entry[max_]} {
-    // XXX
+    : max_{named::get(max)}, store_{nullptr} {
+    T_ERR_GUARD(err) {
+      store_ = new typename t_impl_::t_entry[max_];
+    }
   }
 
   template<typename T>
   inline
   t_list<T, 0>::~t_list() {
-    impl_.clear(store_);
-    delete [] store_;
+    if (store_) {
+      impl_.clear(store_);
+      delete [] store_;
+    }
   }
 
   template<typename T>
@@ -615,7 +619,7 @@ namespace list
   inline
   typename t_list<T, 0>::p_cvalue t_list<T, 0>::cget(t_err err,
                                                      t_ix ix) const {
-    return impl_.get(err, store_, x_, named::get(ix));
+    return impl_.get(err, store_, ix, named::get(ix));
   }
 
   template<typename T>

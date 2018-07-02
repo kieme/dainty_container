@@ -30,8 +30,22 @@ namespace dainty
 {
 namespace container
 {
-  oops::t_def err_what(oops::t_id) {
-    return {};
+  namespace
+  {
+    using namespace oops;
+    using named::p_cstr;
+
+    const t_def err_tbl_[] = {
+      /* CATEGORY                 MESSAGE               NEXT CODE      */
+      {v_category_unrecoverable, p_cstr("-"),          E_INVALID_IX},
+      {v_category_ignore,        p_cstr("invalid ix"), E_NO_SPACE},
+      {v_category_ignore,        p_cstr("no space"),   E_NO_POP},
+      {v_category_ignore,        p_cstr("no pop"),     0}
+    };
+  }
+
+  t_def err_what(t_id id) {
+    return err_tbl_[id <= E_NO_POP ? id : 0];
   }
 }
 }
