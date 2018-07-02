@@ -34,9 +34,12 @@ namespace dainty
 namespace container
 {
   enum t_err_codes {
-    E_INVALID_IX = 1,
-    E_NO_SPACE   = 2,
-    E_NO_POP     = 3
+    E_INVALID_IX   = 1,
+    E_NO_SPACE     = 2,
+    E_NO_POP       = 3,
+    E_INVALID_ID   = 4,
+    E_UNUSED_ID    = 5,
+    E_INVALID_INST = 6
   };
 
   oops::t_def err_what(oops::t_id);

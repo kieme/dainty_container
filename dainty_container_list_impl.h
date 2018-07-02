@@ -70,9 +70,12 @@ namespace list
     inline
     p_value push_back(t_err& err, p_store store, t_n_ max) {
       T_ERR_GUARD(err) {
-        if (next_ < max)
-          return store[next_++].default_construct();
-        err =  E_NO_SPACE;
+        if (store) {
+          if (next_ < max)
+            return store[next_++].default_construct();
+          err =  E_NO_SPACE;
+        } else
+          err = E_INVALID_INST;
       }
       return nullptr;
     }
@@ -87,9 +90,12 @@ namespace list
     inline
     p_value push_back(t_err& err, p_store store, t_n_ max, r_cvalue value) {
       T_ERR_GUARD(err) {
-        if (next_ < max)
-          return store[next_++].copy_construct(value);
-        err =  E_NO_SPACE;
+        if (store) {
+          if (next_ < max)
+            return store[next_++].copy_construct(value);
+          err =  E_NO_SPACE;
+        } else
+          err = E_INVALID_INST;
       }
       return nullptr;
     }
@@ -104,9 +110,12 @@ namespace list
     inline
     p_value push_back(t_err& err, p_store store, t_n_ max, t_value&& value) {
       T_ERR_GUARD(err) {
-        if (next_ < max)
-          return store[next_++].move_construct(std::move(value));
-        err =  E_NO_SPACE;
+        if (store) {
+          if (next_ < max)
+            return store[next_++].move_construct(std::move(value));
+          err =  E_NO_SPACE;
+        } else
+          err = E_INVALID_INST;
       }
       return nullptr;
     }
@@ -126,15 +135,18 @@ namespace list
     inline
     p_value insert(t_err& err, p_store store, t_n_ max, t_ix_ ix) {
       T_ERR_GUARD(err) {
-        if (next_ < max) {
-          if (ix < next_) {
-            move_up_(store, ix, next_++);
-            return store[ix].default_construct();
-          } else if ((!next_ && !ix) || (ix == next_))
-            return push_back(store, max);
-          err = E_INVALID_IX;
+        if (store) {
+          if (next_ < max) {
+            if (ix < next_) {
+              move_up_(store, ix, next_++);
+              return store[ix].default_construct();
+            } else if ((!next_ && !ix) || (ix == next_))
+              return push_back(store, max);
+            err = E_INVALID_IX;
+          } else
+            err = E_NO_SPACE;
         } else
-          err = E_NO_SPACE;
+          err = E_INVALID_INST;
       }
       return nullptr;
     }
@@ -154,15 +166,18 @@ namespace list
     inline
     p_value insert(t_err& err, p_store store, t_n_ max, t_ix_ ix, r_cvalue value) {
       T_ERR_GUARD(err) {
-        if (next_ < max) {
-          if (ix < next_) {
-            move_up_(store, ix, next_++);
-            return store[ix].copy_construct(value);
-          } else if ((!next_ && !ix) || (ix == next_))
-            return push_back(store, max, value);
-          err = E_INVALID_IX;
+        if (store) {
+          if (next_ < max) {
+            if (ix < next_) {
+              move_up_(store, ix, next_++);
+              return store[ix].copy_construct(value);
+            } else if ((!next_ && !ix) || (ix == next_))
+              return push_back(store, max, value);
+            err = E_INVALID_IX;
+          } else
+            err = E_NO_SPACE;
         } else
-          err = E_NO_SPACE;
+          err = E_INVALID_INST;
       }
       return nullptr;
     }
@@ -182,15 +197,18 @@ namespace list
     inline
     p_value insert(t_err& err, p_store store, t_n_ max, t_ix_ ix, t_value&& value) {
       T_ERR_GUARD(err) {
-        if (next_ < max) {
-          if (ix < next_) {
-            move_up_(store, ix, next_++);
-            return store[ix].move_construct(std::move(value));
-          } else if ((!next_ && !ix) || (ix == next_))
-            return push_back(store, max, std::move(value));
-          err = E_INVALID_IX;
+        if (store) {
+          if (next_ < max) {
+            if (ix < next_) {
+              move_up_(store, ix, next_++);
+              return store[ix].move_construct(std::move(value));
+            } else if ((!next_ && !ix) || (ix == next_))
+              return push_back(store, max, std::move(value));
+            err = E_INVALID_IX;
+          } else
+            err = E_NO_SPACE;
         } else
-          err = E_NO_SPACE;
+          err = E_INVALID_INST;
       }
       return nullptr;
     }
@@ -207,11 +225,14 @@ namespace list
     inline
     t_bool pop_back(t_err& err, p_store store) {
       T_ERR_GUARD(err) {
-        if (next_) {
-          store[--next_].destruct();
-          return true;
-        }
-        err = E_NO_POP;
+        if (store) {
+          if (next_) {
+            store[--next_].destruct();
+            return true;
+          }
+          err = E_NO_POP;
+        } else
+          err = E_INVALID_INST;
       }
       return false;
     }
@@ -229,12 +250,15 @@ namespace list
     inline
     t_bool erase(t_err& err, p_store store, t_ix_ ix) {
       T_ERR_GUARD(err) {
-        if (ix < next_) {
-          store[ix].destruct();
-          move_down_(store, ix, --next_);
-          return true;
-        }
-        err = E_INVALID_IX;
+        if (store) {
+          if (ix < next_) {
+            store[ix].destruct();
+            move_down_(store, ix, --next_);
+            return true;
+          }
+          err = E_INVALID_IX;
+        } else
+          err = E_INVALID_INST;
       }
       return false;
     }
@@ -250,10 +274,13 @@ namespace list
     inline
     t_void clear(t_err& err, p_store store) {
       T_ERR_GUARD(err) {
-        if (next_) {
-          valuestore::destruct_(store, t_n{next_});
-          next_ = 0;
-        }
+        if (store) {
+          if (next_) {
+            valuestore::destruct_(store, t_n{next_});
+            next_ = 0;
+          }
+        } else
+          err = E_INVALID_INST;
       }
     }
 
@@ -282,9 +309,12 @@ namespace list
     inline
     p_value get(t_err& err, p_store store, t_ix_ ix) {
       T_ERR_GUARD(err) {
-        if (ix < next_)
-          return store[ix].ptr();
-        err = E_INVALID_IX;
+        if (store) {
+          if (ix < next_)
+            return store[ix].ptr();
+          err = E_INVALID_IX;
+        } else
+          err = E_INVALID_INST;
       }
       return nullptr;
     }
@@ -299,9 +329,12 @@ namespace list
     inline
     p_cvalue get(t_err& err, p_cstore store, t_ix_ ix) const {
       T_ERR_GUARD(err) {
-        if (ix < next_)
-          return store[ix].cptr();
-        err = E_INVALID_IX;
+        if (store) {
+          if (ix < next_)
+            return store[ix].cptr();
+          err = E_INVALID_IX;
+        } else
+          err = E_INVALID_INST;
       }
       return nullptr;
     }
@@ -317,8 +350,11 @@ namespace list
     inline
     t_void each(t_err& err, p_store store, F f) {
       T_ERR_GUARD(err) {
-        for (t_ix_ ix = 0; ix < next_; ++ix)
-          f(store[ix].ref());
+        if (store) {
+          for (t_ix_ ix = 0; ix < next_; ++ix)
+            f(store[ix].ref());
+        } else
+          err = E_INVALID_INST;
       }
     }
 
@@ -333,8 +369,11 @@ namespace list
     inline
     t_void each(t_err& err, p_cstore store, F f) const {
       T_ERR_GUARD(err) {
-        for (t_ix_ ix = 0; ix < next_; ++ix)
-          f(store[ix].cref());
+        if (store) {
+          for (t_ix_ ix = 0; ix < next_; ++ix)
+            f(store[ix].cref());
+        } else
+          err = E_INVALID_INST;
       }
     }
 

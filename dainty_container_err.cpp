@@ -37,10 +37,13 @@ namespace container
 
     const t_def err_tbl_[] = {
       /* CATEGORY                 MESSAGE               NEXT CODE      */
-      {v_category_unrecoverable, p_cstr("-"),          E_INVALID_IX},
-      {v_category_ignore,        p_cstr("invalid ix"), E_NO_SPACE},
-      {v_category_ignore,        p_cstr("no space"),   E_NO_POP},
-      {v_category_ignore,        p_cstr("no pop"),     0}
+      {v_category_unrecoverable, p_cstr("-"),            E_INVALID_IX},
+      {v_category_ignore,        p_cstr("invalid ix"),   E_NO_SPACE},
+      {v_category_ignore,        p_cstr("no space"),     E_NO_POP},
+      {v_category_ignore,        p_cstr("no pop"),       E_INVALID_ID},
+      {v_category_ignore,        p_cstr("invalid id"),   E_UNUSED_ID},
+      {v_category_ignore,        p_cstr("unused id"),    E_INVALID_INST},
+      {v_category_ignore,        p_cstr("invalid inst"), 0}
     };
   }
 

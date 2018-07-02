@@ -103,6 +103,20 @@ namespace freelist
     }
 
     inline
+    t_freelist_impl_(t_err& err, p_entry _entry, t_n_ max)
+      : size_{0}, free_{0} {
+      T_ERR_GUARD(err) {
+        if (_entry) {
+          for (t_n_ i = 0; i < max; /**/) {
+            r_entry entry = _entry[i++];
+            entry.free_ = i;
+          }
+        } else
+          err = E_INVALID_INST;
+      }
+    }
+
+    inline
     t_result insert(p_entry _entry, t_n_ max) {
       if (free_ < max) {
         r_entry entry = _entry[free_];
@@ -111,6 +125,25 @@ namespace freelist
         entry.free_ = USED;
         ++size_;
         return tmp;
+      }
+      return {};
+    }
+
+    inline
+    t_result insert(t_err& err, p_entry _entry, t_n_ max) {
+      T_ERR_GUARD(err) {
+        if (_entry) {
+          if (free_ < max) {
+            r_entry entry = _entry[free_];
+            t_result tmp(free_, entry.store_.default_construct());
+            free_ = entry.free_;
+            entry.free_ = USED;
+            ++size_;
+            return tmp;
+          } else
+            err = E_NO_SPACE;
+        } else
+          err = E_INVALID_INST;
       }
       return {};
     }
@@ -129,6 +162,25 @@ namespace freelist
     }
 
     inline
+    t_result insert(t_err& err, p_entry _entry, t_n_ max, r_cvalue value) {
+      T_ERR_GUARD(err) {
+        if (_entry) {
+          if (free_ < max) {
+            r_entry entry = _entry[free_];
+            t_result tmp(free_, entry.store_.copy_construct(value));
+            free_ = entry.free_;
+            entry.free_ = USED;
+            ++size_;
+            return tmp;
+          } else
+            err = E_NO_SPACE;
+        } else
+          err = E_INVALID_INST;
+      }
+      return {};
+    }
+
+    inline
     t_result insert(p_entry _entry, t_n_ max, t_value&& value) {
       if (free_ < max) {
         r_entry entry = _entry[free_];
@@ -137,6 +189,25 @@ namespace freelist
         entry.free_ = USED;
         ++size_;
         return tmp;
+      }
+      return {};
+    }
+
+    inline
+    t_result insert(t_err& err, p_entry _entry, t_n_ max, t_value&& value) {
+      T_ERR_GUARD(err) {
+        if (_entry) {
+          if (free_ < max) {
+            r_entry entry = _entry[free_];
+            t_result tmp(free_, entry.store_.move_construct(std::move(value)));
+            free_ = entry.free_;
+            entry.free_ = USED;
+            ++size_;
+            return tmp;
+          } else
+            err = E_NO_SPACE;
+        } else
+          err = E_INVALID_INST;
       }
       return {};
     }
@@ -158,12 +229,47 @@ namespace freelist
     }
 
     inline
+    t_bool erase(t_err& err, p_entry _entry, t_n_ max, t_id_ id) {
+      T_ERR_GUARD(err) {
+        if (_entry) {
+          if (id < max) {
+            r_entry entry = _entry[id];
+            if (entry.free_ == USED) {
+              CLEANUP(entry.store_.ref());
+              entry.store_.destruct();
+              entry.free_  = free_;
+              free_        = id;
+              --size_;
+              return true;
+            } else
+              err = E_UNUSED_ID;
+          } else
+            err = E_INVALID_ID;
+        } else
+          err = E_INVALID_INST;
+      }
+      return false;
+    }
+
+    inline
     t_bool erase(p_entry entry, t_n_ max, p_cvalue p) {
       named::t_uint64 begin = (named::t_uint64)entry,
                       end   = begin + (sizeof(t_entry)*max),
                       pos   = (named::t_uint64)p;
       if (pos >= begin && pos < end && !(pos % alignof(t_value)))
         return erase((pos - begin)/sizeof(t_entry));
+      return false;
+    }
+
+    inline
+    t_bool erase(t_err& err, p_entry entry, t_n_ max, p_cvalue p) {
+      T_ERR_GUARD(err) {
+        named::t_uint64 begin = (named::t_uint64)entry,
+                        end   = begin + (sizeof(t_entry)*max),
+                        pos   = (named::t_uint64)p;
+        if (pos >= begin && pos < end && !(pos % alignof(t_value)))
+          return erase((pos - begin)/sizeof(t_entry));
+      }
       return false;
     }
 
@@ -179,6 +285,25 @@ namespace freelist
       }
       size_ = 0;
       free_ = 0;
+    }
+
+    inline
+    t_void clear(t_err& err, p_entry _entry, t_n_ max) {
+      T_ERR_GUARD(err) {
+        if (_entry) {
+          for (t_n_ i = 0; i < max; /* none */ ) {
+            r_entry entry = _entry[i++];
+            if (entry.free_ == USED) {
+              CLEANUP(entry.store_.ref());
+              entry.store_.destruct();
+            }
+            entry.free_ = i;
+          }
+          size_ = 0;
+          free_ = 0;
+        } else
+          err = E_INVALID_INST;
+      }
     }
 
     inline
@@ -207,11 +332,45 @@ namespace freelist
     }
 
     inline
+    p_value get(t_err& err, p_entry _entry, t_n_ max, t_id_ id) {
+      T_ERR_GUARD(err) {
+        if (_entry) {
+          if (id < max) {
+            r_entry entry = _entry[id];
+            if (entry.free_ == USED)
+              return entry.store_.ptr();
+            err = E_UNUSED_ID;
+          } else
+            err = E_INVALID_ID;
+        } else
+          err = E_INVALID_INST;
+      }
+      return nullptr;
+    }
+
+    inline
     p_cvalue get(p_centry _entry, t_n_ max, t_id_ id) const {
       if (id < max) {
         r_centry entry = _entry[id];
         if (entry.free_ == USED)
           return entry.store_.cptr();
+      }
+      return nullptr;
+    }
+
+    inline
+    p_cvalue get(t_err err, p_centry _entry, t_n_ max, t_id_ id) const {
+      T_ERR_GUARD(err) {
+        if (_entry) {
+          if (id < max) {
+            r_centry entry = _entry[id];
+            if (entry.free_ == USED)
+              return entry.store_.cptr();
+            err = E_UNUSED_ID;
+          } else
+            err = E_INVALID_ID;
+        } else
+          err = E_INVALID_INST;
       }
       return nullptr;
     }
@@ -228,6 +387,21 @@ namespace freelist
 
     template<typename F>
     inline
+    t_void each(t_err err, p_entry _entry, t_n_ max, F f) {
+      T_ERR_GUARD(err) {
+        if (_entry) {
+          for (t_id_ id = 0; id < max; ++id) {
+            r_entry entry = _entry[id];
+            if (entry.free_ == USED)
+              f(t_id{id}, entry.store_.ref());
+          }
+        } else
+          err = E_INVALID_INST;
+      }
+    }
+
+    template<typename F>
+    inline
     t_void each(p_centry _entry, t_n_ max, F f) const {
       for (t_id_ id = 0; id < max; ++id) {
         r_centry entry = _entry[id];
@@ -236,6 +410,20 @@ namespace freelist
       }
     }
 
+    template<typename F>
+    inline
+    t_void each(t_err err, p_centry _entry, t_n_ max, F f) const {
+      T_ERR_GUARD(err) {
+        if (_entry) {
+          for (t_id_ id = 0; id < max; ++id) {
+            r_centry entry = _entry[id];
+            if (entry.free_ == USED)
+              f(t_id{id}, entry.store_.cref());
+          }
+        } else
+          err = E_INVALID_INST;
+      }
+    }
 
   private:
     t_n_ size_;
