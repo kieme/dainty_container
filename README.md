@@ -3,7 +3,7 @@
 
 Historical context: The containers were initialy developed for a deterministic application. They are now transformed to a newer c++ version and nameing convention, which will most likely introduce bugs. This will be fixed when unit testing is introduced.
 
-The dainty containers offers functionality not available in &lt,std> containers. All the containers have the following characterists:
+The dainty containers offers functionality not available in &lt;std> containers. All the containers have the following characterists:
 1. incorporate &lt;oops>, the error handling mechanism used by the dainty framework.  
 2. heap and stack version avaiable for most of the containers.
 3. small interfaces (compared to wide interfaces) to do essential work.
