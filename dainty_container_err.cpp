@@ -43,7 +43,9 @@ namespace container
       {v_category_ignore,        p_cstr("no pop"),       E_INVALID_ID},
       {v_category_ignore,        p_cstr("invalid id"),   E_UNUSED_ID},
       {v_category_ignore,        p_cstr("unused id"),    E_INVALID_INST},
-      {v_category_ignore,        p_cstr("invalid inst"), 0}
+      {v_category_ignore,        p_cstr("invalid inst"), E_NOT_UNIQUE},
+      {v_category_ignore,        p_cstr("not unique"),   E_NO_ERASE},
+      {v_category_ignore,        p_cstr("no erase"),     0}
     };
   }
 

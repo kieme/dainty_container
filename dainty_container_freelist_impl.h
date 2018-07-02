@@ -29,6 +29,7 @@
 
 #include <memory>
 #include "dainty_named.h"
+#include "dainty_container_err.h"
 #include "dainty_container_valuestore.h"
 
 namespace dainty

@@ -39,7 +39,9 @@ namespace container
     E_NO_POP       = 3,
     E_INVALID_ID   = 4,
     E_UNUSED_ID    = 5,
-    E_INVALID_INST = 6
+    E_INVALID_INST = 6,
+    E_NOT_UNIQUE   = 7,
+    E_NO_ERASE     = 8
   };
 
   oops::t_def err_what(oops::t_id);

@@ -190,9 +190,6 @@ namespace map
     using t_ids_   = list::t_list<t_id, N>;
   public:
     using t_compare   = C;
-    //using t_id        = map::t_id;
-  //  using t_ix        = map::t_ix;
-  //  using t_n         = map::t_n;
     using t_keyvalue  = map::t_keyvalue<K, T>;
     using r_ckeyvalue = const t_keyvalue&;
     using p_keyvalue  = t_keyvalue*;
@@ -220,6 +217,26 @@ namespace map
     }
 
     inline
+    t_result insert(t_err& err, r_ckey key) {
+      T_ERR_GUARD(err) {
+        t_n_ n = named::get(ids_.get_size());
+        if (n < N) {
+          t_ix ix = lowerbound_(key);
+          if (named::get(ix) == n ||
+              C::operator()(key,
+                            store_.get(*ids_.get(ix))->keyvalue.key)) {
+            auto result = store_.insert(t_entry_{key, ix});
+            ids_.insert(ix, result.id);
+            return t_result{result.id, ix, &result->keyvalue};
+          }
+          err = E_NOT_UNIQUE;
+        } else
+          err = E_NO_SPACE;
+      }
+      return {};
+    }
+
+    inline
     t_result insert(r_ckeyvalue keyvalue) {
       t_n_ n = named::get(ids_.get_size());
       if (n < N) {
@@ -231,6 +248,26 @@ namespace map
           ids_.insert(ix, result.id);
           return t_result{result.id, ix, &result->keyvalue};
         }
+      }
+      return {};
+    }
+
+    inline
+    t_result insert(t_err& err, r_ckeyvalue keyvalue) {
+      T_ERR_GUARD(err) {
+        t_n_ n = named::get(ids_.get_size());
+        if (n < N) {
+          t_ix ix = lowerbound_(keyvalue.key);
+          if (named::get(ix) == n ||
+              C::operator()(keyvalue.key,
+                            store_.get(*ids_.get(ix))->keyvalue.key)) {
+            auto result = store_.insert(t_entry_{keyvalue, ix});
+            ids_.insert(ix, result.id);
+            return t_result{result.id, ix, &result->keyvalue};
+          }
+          err = E_NOT_UNIQUE;
+        } else
+          err = E_NO_SPACE;
       }
       return {};
     }
@@ -252,6 +289,26 @@ namespace map
     }
 
     inline
+    t_result insert(t_err& err, t_keyvalue&& keyvalue) {
+      T_ERR_GUARD(err) {
+        t_n_ n = named::get(ids_.get_size());
+        if (n < N) {
+          t_ix ix = lowerbound_(keyvalue.key);
+          if (named::get(ix) == n ||
+              C::operator()(keyvalue.key,
+                            store_.get(*ids_.get(ix))->keyvalue.key)) {
+            auto result = store_.insert(t_entry_{std::move(keyvalue), ix});
+            ids_.insert(ix, result.id);
+            return t_result{result.id, ix, &result->keyvalue};
+          }
+          err = E_NOT_UNIQUE;
+        } else
+          err = E_NO_SPACE;
+      }
+      return {};
+    }
+
+    inline
     t_bool erase(r_ckey key) {
       t_n_ n = named::get(ids_.get_size());
       if (n) {
@@ -268,12 +325,45 @@ namespace map
     }
 
     inline
+    t_bool erase(t_err& err, r_ckey key) {
+      T_ERR_GUARD(err) {
+        t_n_ n = named::get(ids_.get_size());
+        if (n) {
+          t_ix ix = lowerbound(key);
+          if (named::get(ix) != n &&
+              !C::operator()(key,
+                             store_.get(*ids_.get(ix))->keyvalue.key)) {
+            store_.erase(*ids_.get(ix));
+            ids_.erase(ix);
+            return true;
+          }
+        }
+        err = E_NO_ERASE;
+      }
+      return false;
+    }
+
+    inline
     t_bool erase(t_ix ix) {
       t_n_ n = named::get(ids_.get_size());
       if (named::get(ix) < n) {
         store_.erase(*ids_.get(ix));
         ids_.erase(ix);
         return true;
+      }
+      return false;
+    }
+
+    inline
+    t_bool erase(t_err& err, t_ix ix) {
+      T_ERR_GUARD(err) {
+        t_n_ n = named::get(ids_.get_size());
+        if (named::get(ix) < n) {
+          store_.erase(*ids_.get(ix));
+          ids_.erase(ix);
+          return true;
+        }
+        err = E_INVALID_IX;
       }
       return false;
     }
@@ -287,9 +377,28 @@ namespace map
     }
 
     inline
+    t_bool erase(t_err& err, t_id id) {
+      T_ERR_GUARD(err) {
+        auto entry = store_.get(id);
+        if (entry)
+          return erase(entry->ix);
+        err = E_INVALID_ID;
+      }
+      return false;
+    }
+
+    inline
     t_void clear() {
       ids_.clear();
       store_.clear();
+    }
+
+    inline
+    t_void clear(t_err& err) {
+      T_ERR_GUARD(err) {
+        ids_.clear();
+        store_.clear();
+      }
     }
 
     inline
@@ -308,6 +417,23 @@ namespace map
     }
 
     inline
+    t_result find(t_err& err, r_ckey key) {
+      T_ERR_GUARD(err) {
+        t_n_ n = named::get(ids_.get_size());
+        if (n) {
+          t_n_ p = lowerbound(key);
+          if (p < n) {
+            t_id id{ids_[p]};
+            p_keyvalue ptr = store_.get(id);
+            if (!C::operator()(key, ptr->key))
+              return {id, t_ix{p}, ptr};
+          }
+        }
+      }
+      return {};
+    }
+
+    inline
     t_cresult find(r_ckey key) const {
       t_n_ n = named::get(ids_.get_size());
       if (n) {
@@ -317,6 +443,23 @@ namespace map
           p_ckeyvalue ptr = store_.get(id);
           if (!C::operator()(key, ptr->key))
             return {id, t_ix{p}, ptr};
+        }
+      }
+      return {};
+    }
+
+    inline
+    t_cresult find(t_err& err, r_ckey key) const {
+      T_ERR_GUARD(err) {
+        t_n_ n = named::get(ids_.get_size());
+        if (n) {
+          t_n_ p = lowerbound(key);
+          if (p < n) {
+            t_id id{ids_[p]};
+            p_ckeyvalue ptr = store_.get(id);
+            if (!C::operator()(key, ptr->key))
+              return {id, t_ix{p}, ptr};
+          }
         }
       }
       return {};
@@ -345,9 +488,27 @@ namespace map
     }
 
     inline
+    p_keyvalue get(t_err& err, t_ix ix) {
+      T_ERR_GUARD(err) {
+        if (named::get(ix) < named::get(ids_.get_size()))
+          return &store_.get(*ids_.get(ix))->keyvalue;
+      }
+      return nullptr;
+    }
+
+    inline
     p_ckeyvalue get(t_ix ix) const {
       if (named::get(ix) < named::get(ids_.get_size()))
         return &store_.get(*ids_.get(ix))->keyvalue;
+      return nullptr;
+    }
+
+    inline
+    p_ckeyvalue get(t_err& err, t_ix ix) const {
+      T_ERR_GUARD(err) {
+        if (named::get(ix) < named::get(ids_.get_size()))
+          return &store_.get(*ids_.get(ix))->keyvalue;
+      }
       return nullptr;
     }
 
@@ -360,10 +521,30 @@ namespace map
     }
 
     inline
+    p_keyvalue get(t_err& err, t_id id) {
+      T_ERR_GUARD(err) {
+        auto entry = store_.get(id);
+        if (entry)
+          return &entry->keyvalue;
+      }
+      return nullptr;
+    }
+
+    inline
     p_ckeyvalue get(t_id id) const {
       auto entry = store_.get(id);
       if (entry)
         return &entry->keyvalue;
+      return nullptr;
+    }
+
+    inline
+    p_ckeyvalue get(t_err& err, t_id id) const {
+      T_ERR_GUARD(err) {
+        auto entry = store_.get(id);
+        if (entry)
+          return &entry->keyvalue;
+      }
       return nullptr;
     }
 
@@ -376,9 +557,27 @@ namespace map
 
     template<typename F>
     inline
+    t_void each(t_err& err, F f) {
+      T_ERR_GUARD(err) {
+        store_.each([func = std::move(f)](auto id, auto& entry) {
+          func(id, entry.ix, entry.keyvalue); });
+      }
+    }
+
+    template<typename F>
+    inline
     t_void each(F f) const {
       store_.each([func = std::move(f)](auto id, const auto& entry) {
         func(id, entry.ix, entry.keyvalue); });
+    }
+
+    template<typename F>
+    inline
+    t_void each(t_err& err, F f) const {
+      T_ERR_GUARD(err) {
+        store_.each([func = std::move(f)](auto id, const auto& entry) {
+          func(id, entry.ix, entry.keyvalue); });
+      }
     }
 
     template<typename F>
@@ -390,9 +589,27 @@ namespace map
 
     template<typename F>
     inline
+    t_void ordered_each(t_err& err, F f) {
+      T_ERR_GUARD(err) {
+        ids_.each([this, func = std::move(f), ix = 0](auto id) mutable {
+          func(id, t_ix{ix++}, *this->store_.get(id)); });
+      }
+    }
+
+    template<typename F>
+    inline
     t_void ordered_each(F f) const {
       ids_.each([this, func = std::move(f), ix = 0](auto id) mutable {
         func(id, t_ix{ix++}, *this->store_.get(id)); });
+    }
+
+    template<typename F>
+    inline
+    t_void ordered_each(t_err& err, F f) const {
+      T_ERR_GUARD(err) {
+        ids_.each([this, func = std::move(f), ix = 0](auto id) mutable {
+          func(id, t_ix{ix++}, *this->store_.get(id)); });
+      }
     }
 
   private:
