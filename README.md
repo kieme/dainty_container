@@ -8,14 +8,15 @@ The dainty containers offers functionality not available in &lt;std> containers.
 2. heap and stack version avaiable for most of the containers.
 3. small interfaces (compared to wide interfaces) to do essential work.
 4. most containers are inplace containers that do not allow implicit copy or move.
-5. container implementations are simple to read.
-6. no function method using t_err will crash.
+5. no function method using t_err will crash.
+6. container implementations are simple to understand and debug.
 
 current containers:
 1. t_freelist
 2. t_list
-3. t_map
-4. t_valuestore - required to manage contruction & destruction
+3. t_pushlist
+4. t_map
+5. t_valuestore - required to manage contruction & destruction
 
 many containers to follow (they must still be ported from another framework)
 1. t_linked_queue
@@ -25,5 +26,6 @@ many containers to follow (they must still be ported from another framework)
 5. t_uniquelist
 6. t_array
 7. t_string
-8. t_varbuf
-9. ....
+8. t_texting
+9. t_varbuf
+10. ....
