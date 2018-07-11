@@ -262,12 +262,12 @@ namespace chained_queue
       return chain_.tail;
     }
 
-    t_bool is_empty(r_cstore store) const {
-      return store.is_empty();
+    t_bool is_empty(r_cstore) const {
+      return !get(chain_.cnt);
     }
 
     t_bool is_full(r_cstore store) const {
-      return store.is_full();
+      return get(store.get_capacity()) == get(chain_.cnt);
     }
 
     t_n get_capacity(r_cstore store) const {
@@ -275,7 +275,7 @@ namespace chained_queue
     }
 
     t_n get_size(r_cstore store) const {
-      return store.get_size();
+      return chain_.cnt;
     }
 
   private:
