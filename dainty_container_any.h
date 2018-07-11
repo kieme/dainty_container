@@ -131,10 +131,10 @@ namespace any
 
   inline
   t_any::operator t_validity () const {
-    return user_.id ? VALID : INVALID;
+    return store_ ? VALID : INVALID;
   }
 
-  inline 
+  inline
   t_user t_any::get_user() const {
     return user_;
   }
