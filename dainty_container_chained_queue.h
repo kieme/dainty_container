@@ -46,6 +46,7 @@ namespace chained_queue
   public:
     using t_n     = typename t_impl_::t_n;
     using t_chain = typename t_impl_::t_chain;
+    using p_item  = typename t_impl_::p_item;
 
     t_chained_queue();
 
@@ -65,6 +66,8 @@ namespace chained_queue
     t_void  insert(t_err, t_chain);
     t_chain remove(       t_n = t_n{0});
     t_chain remove(t_err, t_n = t_n{0});
+
+    p_item get_tail();
 
     t_bool is_empty    () const;
     t_bool is_full     () const;
@@ -86,6 +89,7 @@ namespace chained_queue
   public:
     using t_n     = typename t_impl_::t_n;
     using t_chain = typename t_impl_::t_chain;
+    using p_item  = typename t_impl_::p_item;
 
     t_chained_queue(t_n max);
 
@@ -105,6 +109,8 @@ namespace chained_queue
     t_void  insert(t_err, t_chain);
     t_chain remove(       t_n = t_n{0});
     t_chain remove(t_err, t_n = t_n{0});
+
+    p_item get_tail();
 
     t_bool is_empty    () const;
     t_bool is_full     () const;
@@ -180,6 +186,12 @@ namespace chained_queue
   typename t_chained_queue<T, N>::t_chain
       t_chained_queue<T, N>::remove(t_err err, t_n n) {
     return impl_.remove(err, store_, n);
+  }
+
+  template<typename T, t_n_ N>
+  inline
+  typename t_chained_queue<T, N>::p_item t_chained_queue<T, N>::get_tail() {
+    return impl_.get_tail(store_);
   }
 
   template<typename T, t_n_ N>
@@ -271,6 +283,12 @@ namespace chained_queue
   typename t_chained_queue<T, 0>::t_chain
       t_chained_queue<T, 0>::remove(t_err err, t_n n) {
     return impl_.remove(err, store_, n);
+  }
+
+  template<typename T>
+  inline
+  typename t_chained_queue<T, 0>::p_item t_chained_queue<T, 0>::get_tail() {
+    return impl_.get_tail(store_);
   }
 
   template<typename T>

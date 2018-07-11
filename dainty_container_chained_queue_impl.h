@@ -258,6 +258,10 @@ namespace chained_queue
       return {};
     }
 
+    p_item get_tail(r_cstore) {
+      return chain_.tail;
+    }
+
     t_bool is_empty(r_cstore store) const {
       return store.is_empty();
     }
