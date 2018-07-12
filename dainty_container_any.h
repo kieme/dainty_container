@@ -28,7 +28,6 @@
 #define _DAINTY_CONTAINER_ANY_H_
 
 #include <utility>
-#include <memory>
 #include "dainty_named.h"
 
 namespace dainty
@@ -37,18 +36,34 @@ namespace container
 {
 namespace any
 {
+  using named::t_bool;
   using named::t_validity;
   using named::VALID;
   using named::INVALID;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  struct t_erase_it_ { virtual ~t_erase_it_() {} };
+  struct t_erase_it_ {
+    virtual ~t_erase_it_() {}
+            t_bool same_type(const t_erase_it_& it) const;
+    virtual t_bool is_equal (const t_erase_it_&) const = 0;
+  };
 
   template<class T>
-  struct t_store_ : t_erase_it_ {
+  struct t_store_ final : t_erase_it_ {
     T value_;
+
     template<class U> t_store_(U&& u) : value_(std::forward<U>(u)) { }
+    t_store_()                           = delete;
+    t_store_(const t_store_&)            = delete;
+    t_store_& operator=(const t_store_&) = delete;
+    t_store_(t_store_&&)                 = delete;
+    t_store_& operator=(t_store_&&)      = delete;
+
+    virtual t_bool is_equal(const t_erase_it_& it) const override {
+      return same_type(it) &&
+             value_ == static_cast<const t_store_<T>&>(it).value_;
+    };
   };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -86,6 +101,8 @@ namespace any
 
     operator t_validity() const;
     t_user   get_user  () const;
+    t_bool   same_type (const t_any&) const;
+    t_bool   is_equal  (const t_any&) const;
 
     template<class T> T&        ref();
     template<class T> const T&  ref() const;
@@ -95,6 +112,18 @@ namespace any
     t_user       user_;
     t_erase_it_* store_  = nullptr;
   };
+
+////////////////////////////////////////////////////////////////////////////////
+
+  inline
+  t_bool operator==(const t_any& lh, const t_any& rh) {
+    return lh.is_equal(rh);
+  }
+
+  inline
+  t_bool operator!=(const t_any& lh, const t_any& rh) {
+    return !lh.is_equal(rh);
+  }
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -137,6 +166,28 @@ namespace any
   inline
   t_user t_any::get_user() const {
     return user_;
+  }
+
+  inline
+  t_bool t_any::same_type(const t_any& any) const {
+    if (user_.id == any.user_.id) {
+       if (store_ && any.store_)
+         return store_->same_type(*any.store_);
+       if (!store_ && !any.store_)
+         return true;
+    }
+    return false;
+  }
+
+  inline
+  t_bool t_any::is_equal(const t_any& any) const {
+    if (user_.id == any.user_.id) {
+       if (store_ && any.store_)
+         return store_->is_equal(*any.store_);
+       if (!store_ && !any.store_)
+         return true;
+    }
+    return false;
   }
 
   inline
