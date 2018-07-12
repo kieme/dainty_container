@@ -33,8 +33,8 @@ namespace container
 {
 namespace any
 {
-  t_bool t_erase_it_::same_type(const t_erase_it_& it) const {
-    return typeid(*this) == typeid(it);
+  t_bool same_type_(const t_erase_it_& it1, const t_erase_it_& it2) {
+    return typeid(it1) == typeid(it2);
   }
 }
 }

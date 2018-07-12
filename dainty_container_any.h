@@ -45,9 +45,10 @@ namespace any
 
   struct t_erase_it_ {
     virtual ~t_erase_it_() {}
-            t_bool same_type(const t_erase_it_& it) const;
     virtual t_bool is_equal (const t_erase_it_&) const = 0;
   };
+
+  t_bool same_type_(const t_erase_it_&, const t_erase_it_& it);
 
   template<class T>
   struct t_store_ final : t_erase_it_ {
@@ -61,7 +62,7 @@ namespace any
     t_store_& operator=(t_store_&&)      = delete;
 
     virtual t_bool is_equal(const t_erase_it_& it) const override {
-      return same_type(it) &&
+      return same_type_(*this, it) &&
              value_ == static_cast<const t_store_<T>&>(it).value_;
     };
   };
@@ -172,7 +173,7 @@ namespace any
   t_bool t_any::same_type(const t_any& any) const {
     if (user_.id == any.user_.id) {
        if (store_ && any.store_)
-         return store_->same_type(*any.store_);
+         return same_type_(*store_, *any.store_);
        if (!store_ && !any.store_)
          return true;
     }
