@@ -30,6 +30,10 @@
 #include <utility>
 #include "dainty_named.h"
 
+// T reuire:
+// CopyConstructable
+// assignment operator
+
 namespace dainty
 {
 namespace container
@@ -46,15 +50,16 @@ namespace any
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  struct t_erase_it_ {
-    virtual ~t_erase_it_() {}
-    virtual t_bool is_equal (const t_erase_it_&) const = 0;
+  struct t_it_ {
+    virtual ~t_it_() {}
+    virtual t_bool is_equal(const t_it_&) const = 0;
+    virtual t_it_* clone() const = 0;
   };
 
-  t_bool same_type_(const t_erase_it_&, const t_erase_it_& it);
+  t_bool same_type_(const t_it_&, const t_it_& it);
 
   template<class T>
-  struct t_store_ final : t_erase_it_ {
+  struct t_store_ final : t_it_ {
     T value_;
 
     template<class U> t_store_(U&& u) : value_(std::forward<U>(u)) { }
@@ -64,9 +69,13 @@ namespace any
     t_store_(t_store_&&)                 = delete;
     t_store_& operator=(t_store_&&)      = delete;
 
-    virtual t_bool is_equal(const t_erase_it_& it) const override {
+    virtual t_bool is_equal(const t_it_& it) const override {
       return same_type_(*this, it) &&
              value_ == static_cast<const t_store_<T>&>(it).value_;
+    };
+
+    virtual t_it_* clone() const {
+      return new t_store_<T>(value_);
     };
   };
 
@@ -75,15 +84,14 @@ namespace any
   class t_any final {
   public:
      t_any() = default;
-     t_any(t_user);
-     template<typename T>
-     t_any(t_user, T&&);
+     t_any(const t_any&);
      t_any(t_any&&);
+     explicit t_any(t_user);
+     template<typename T> t_any(t_user, T&&);
     ~t_any();
 
+    t_any& operator=(const t_any&);
     t_any& operator=(t_any&&);
-    t_any(const t_any&)            = delete;
-    t_any& operator=(const t_any&) = delete;
 
     t_any& assign(t_user);
     template<typename T>
@@ -99,8 +107,8 @@ namespace any
     template<class T> const T& cref() const;
 
   private:
-    t_user       user_;
-    t_erase_it_* store_  = nullptr;
+    t_user user_  = t_user{0L};
+    t_it_* store_ = nullptr;
   };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -128,24 +136,15 @@ namespace any
   }
 
   inline
+  t_any::t_any(const t_any& any) : user_{any.user_}, store_{any.store_} {
+    if (store_)
+      store_ = store_->clone();
+  }
+
+  inline
   t_any::t_any(t_any&& any) : user_{any.user_}, store_{any.store_} {
     any.store_   = nullptr;
     any.user_.id = 0;
-  }
-
-  inline
-  t_any& t_any::operator=(t_any&& any) {
-    if (store_)
-      delete store_;
-    user_  = any.user_;
-    store_ = any.store_;
-    return *this;
-  }
-
-  inline
-  t_any::~t_any() {
-    if (store_)
-      delete store_;
   }
 
   inline
@@ -156,38 +155,6 @@ namespace any
   inline
   t_user t_any::get_user() const {
     return user_;
-  }
-
-  inline
-  t_bool t_any::same_type(const t_any& any) const {
-    if (user_.id == any.user_.id) {
-       if (store_ && any.store_)
-         return same_type_(*store_, *any.store_);
-       if (!store_ && !any.store_)
-         return true;
-    }
-    return false;
-  }
-
-  inline
-  t_bool t_any::is_equal(const t_any& any) const {
-    if (user_.id == any.user_.id) {
-       if (store_ && any.store_)
-         return store_->is_equal(*any.store_);
-       if (!store_ && !any.store_)
-         return true;
-    }
-    return false;
-  }
-
-  inline
-  t_any& t_any::assign(t_user user) {
-    if (store_) {
-      delete store_;
-      store_ = nullptr;
-    }
-    user_ = user;
-    return *this;
   }
 
   template<typename T>

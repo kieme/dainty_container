@@ -33,9 +33,59 @@ namespace container
 {
 namespace any
 {
-  t_bool same_type_(const t_erase_it_& it1, const t_erase_it_& it2) {
+  t_bool same_type_(const t_it_& it1, const t_it_& it2) {
     return typeid(it1) == typeid(it2);
   }
+
+  t_any& t_any::operator=(const t_any& any) {
+    if (store_) // XXX must be optimzed - see if same type then copy
+      delete store_;
+    user_  = any.user_;
+    store_ = any.store_;
+    if (store_)
+      store_ = store_->clone();
+    return *this;
+  }
+
+  t_any& t_any::operator=(t_any&& any) {
+    if (store_)
+      delete store_;
+    user_  = any.user_;
+    store_ = any.store_;
+    return *this;
+  }
+
+  t_any::~t_any() {
+    if (store_)
+      delete store_;
+  }
+
+  t_bool t_any::same_type(const t_any& any) const {
+    if (user_.id == any.user_.id) {
+       if (store_ && any.store_)
+         return same_type_(*store_, *any.store_);
+       if (!store_ && !any.store_)
+         return true;
+    }
+    return false;
+  }
+
+  t_bool t_any::is_equal(const t_any& any) const {
+    if (same_type(any) && store_)
+      return store_->is_equal(*any.store_);
+    return false;
+  }
+
+  t_any& t_any::assign(t_user user) {
+    if (store_) {
+      delete store_;
+      store_ = nullptr;
+    }
+    user_ = user;
+    return *this;
+  }
+
+////////////////////////////////////////////////////////////////////////////////
 }
 }
 }
