@@ -38,12 +38,16 @@ namespace any
   }
 
   t_any& t_any::operator=(const t_any& any) {
-    if (store_) // XXX must be optimzed - see if same type then copy
-      delete store_;
-    user_  = any.user_;
-    store_ = any.store_;
-    if (store_)
-      store_ = store_->clone();
+    if (store_ && any.store_ && same_type_(*store_, *any.store_))
+      store_->copy(*any.store_);
+    else {
+      if (store_)
+        delete store_;
+      user_  = any.user_;
+      store_ = any.store_;
+      if (store_)
+        store_ = store_->clone();
+    }
     return *this;
   }
 
@@ -52,6 +56,8 @@ namespace any
       delete store_;
     user_  = any.user_;
     store_ = any.store_;
+    any.store_   = nullptr;
+    any.user_.id = 0;
     return *this;
   }
 

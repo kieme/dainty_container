@@ -4,7 +4,7 @@
 
  Copyright (c) 2018 kieme, frits.germs@gmx.net
 
- Permission is hereby granted, free of charge, to any person obtaining a copy
+ Permission is hereby granted, free of charge, to holder person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
  in the Software without restriction, including without limitation the rights
  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
@@ -24,8 +24,8 @@
 
 ******************************************************************************/
 
-#ifndef _DAINTY_CONTAINER_ANY_H_
-#define _DAINTY_CONTAINER_ANY_H_
+#ifndef _DAINTY_CONTAINER_HOLDER_H_
+#define _DAINTY_CONTAINER_HOLDER_H_
 
 #include <utility>
 #include "dainty_named.h"
@@ -34,10 +34,8 @@ namespace dainty
 {
 namespace container
 {
-namespace any
+namespace holder
 {
-  using named::t_void;
-  using named::t_bool;
   using named::t_validity;
   using named::VALID;
   using named::INVALID;
@@ -47,14 +45,7 @@ namespace any
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  struct t_it_ {
-    virtual ~t_it_() {}
-    virtual t_bool is_equal(const t_it_&) const = 0;
-    virtual t_void copy(const t_it_&) = 0;
-    virtual t_it_* clone() const = 0;
-  };
-
-  t_bool same_type_(const t_it_&, const t_it_& it);
+  struct t_it_ { virtual ~t_it_() {} };
 
   template<class T>
   struct t_store_ final : t_it_ {
@@ -66,124 +57,96 @@ namespace any
     t_store_& operator=(const t_store_&) = delete;
     t_store_(t_store_&&)                 = delete;
     t_store_& operator=(t_store_&&)      = delete;
-
-    virtual t_bool is_equal(const t_it_& it) const override {
-      return same_type_(*this, it) &&
-             value_ == static_cast<const t_store_<T>&>(it).value_;
-    };
-
-    virtual t_void copy(const t_it_& it) {
-      value_ = static_cast<const t_store_<T>&>(it).value_;
-    };
-
-    virtual t_it_* clone() const {
-      return new t_store_<T>(value_);
-    };
   };
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  class t_any final {
+  class t_holder final {
   public:
-     t_any() = default;
-     t_any(const t_any&);
-     t_any(t_any&&);
-     explicit t_any(t_user);
-     template<typename T> t_any(t_user, T&&);
-    ~t_any();
+     t_holder() = default;
+     t_holder(t_holder&&);
+    ~t_holder();
 
-    t_any& operator=(const t_any&);
-    t_any& operator=(t_any&&);
-
-    t_any& assign(t_user);
-    template<typename T>
-    T&     assign(t_user, T&&);
+    t_holder& operator=(t_holder&&);
+    t_holder(const t_holder&)            = delete;
+    t_holder& operator=(const t_holder&) = delete;
 
     operator t_validity() const;
-    t_user   get_user  () const;
-    t_bool   same_type (const t_any&) const;
-    t_bool   is_equal  (const t_any&) const;
+
+    template<typename T>
+    T& assign(T&&);
+
+    template<typename T, typename... Args>
+    T& emplace(Args&&... args);
 
     template<class T> T&        ref();
     template<class T> const T&  ref() const;
     template<class T> const T& cref() const;
 
   private:
-    t_user user_  = t_user{0L};
     t_it_* store_ = nullptr;
   };
 
 ////////////////////////////////////////////////////////////////////////////////
 
   inline
-  t_bool operator==(const t_any& lh, const t_any& rh) {
-    return lh.is_equal(rh);
+  t_holder::t_holder(t_holder&& holder) : store_{holder.store_} {
+    holder.store_ = nullptr;
   }
 
   inline
-  t_bool operator!=(const t_any& lh, const t_any& rh) {
-    return !lh.is_equal(rh);
-  }
-
-////////////////////////////////////////////////////////////////////////////////
-
-  inline
-  t_any::t_any(t_user user) : user_{user} {
-  }
-
-  template<typename T>
-  inline
-  t_any::t_any(t_user user, T&& value)
-    : user_{user}, store_(new t_store_<T>(std::forward<T>(value))) {
-  }
-
-  inline
-  t_any::t_any(const t_any& any) : user_{any.user_}, store_{any.store_} {
+  t_holder::~t_holder() {
     if (store_)
-      store_ = store_->clone();
+      delete store_;
   }
 
   inline
-  t_any::t_any(t_any&& any) : user_{any.user_}, store_{any.store_} {
-    any.store_   = nullptr;
-    any.user_.id = 0;
+  t_holder& t_holder::operator=(t_holder&& holder) {
+    if (store_)
+      delete store_;
+    store_ = holder.store_;
+    holder.store_ = nullptr;
+    return *this;
   }
 
   inline
-  t_any::operator t_validity () const {
+  t_holder::operator t_validity () const {
     return store_ ? VALID : INVALID;
   }
 
-  inline
-  t_user t_any::get_user() const {
-    return user_;
-  }
-
   template<typename T>
   inline
-  T& t_any::assign(t_user user, T&& value) {
+  T& t_holder::assign(T&& value) {
     if (store_)
       delete store_;
-    user_  = user;
     store_ = new t_store_<T>(std::forward<T>(value));
+    return ref<T>();
+  }
+
+  template<typename T, typename... Args>
+  inline
+  T& t_holder::emplace(Args&&... args) {
+    if (store_)
+      delete store_;
+    store_ = new t_store_<T>(std::forward<Args>(args)...);
     return ref<T>();
   }
 
   template<typename T>
   inline
-  T& t_any::ref() {
+  T& t_holder::ref() {
     return (static_cast<t_store_<T>*>(store_))->value_;
   }
 
   template<typename T>
   inline
-  const T& t_any::ref() const {
+  const T& t_holder::ref() const {
     return (static_cast<const t_store_<T>*>(store_))->value_;
   }
 
   template<typename T>
   inline
-  const T& t_any::cref() const {
+  const T& t_holder::cref() const {
     return (static_cast<const t_store_<T>*>(store_))->value_;
   }
 
