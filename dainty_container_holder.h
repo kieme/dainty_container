@@ -73,9 +73,6 @@ namespace holder
 
     operator t_validity() const;
 
-    template<typename T>
-    T& assign(T&&);
-
     template<typename T, typename... Args>
     T& emplace(Args&&... args);
 
@@ -112,15 +109,6 @@ namespace holder
   inline
   t_holder::operator t_validity () const {
     return store_ ? VALID : INVALID;
-  }
-
-  template<typename T>
-  inline
-  T& t_holder::assign(T&& value) {
-    if (store_)
-      delete store_;
-    store_ = new t_store_<T>(std::forward<T>(value));
-    return ref<T>();
   }
 
   template<typename T, typename... Args>

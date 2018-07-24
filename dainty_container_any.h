@@ -60,8 +60,10 @@ namespace any
   struct t_store_ final : t_it_ {
     T value_;
 
-    template<class U> t_store_(U&& u) : value_(std::forward<U>(u)) { }
-    t_store_()                           = delete;
+    template<class... Args> t_store_(Args&&... args)
+      : value_(std::forward<Args>(args)...) {
+    }
+
     t_store_(const t_store_&)            = delete;
     t_store_& operator=(const t_store_&) = delete;
     t_store_(t_store_&&)                 = delete;
@@ -96,8 +98,9 @@ namespace any
     t_any& operator=(t_any&&);
 
     t_any& assign(t_user);
-    template<typename T>
-    T&     assign(t_user, T&&);
+
+    template<typename T, typename... Args>
+    T& emplace(t_user, Args&&... args);
 
     operator t_validity() const;
     t_user   get_user  () const;
@@ -159,13 +162,13 @@ namespace any
     return user_;
   }
 
-  template<typename T>
+  template<typename T, typename... Args>
   inline
-  T& t_any::assign(t_user user, T&& value) {
+  T& t_any::emplace(t_user user, Args&&... args) {
     if (store_)
       delete store_;
     user_  = user;
-    store_ = new t_store_<T>(std::forward<T>(value));
+    store_ = new t_store_<T>(std::forward<Args>(args)...);
     return ref<T>();
   }
 
