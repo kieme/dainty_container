@@ -44,9 +44,11 @@ namespace pushlist
   class t_pushlist {
     using t_impl_ = t_list<T, N>;
   public:
-    using t_value  = typename t_impl_::t_value;
-    using p_value  = typename t_impl_::p_value;
-    using p_cvalue = typename t_impl_::p_cvalue;
+    using t_value = typename t_impl_::t_value;
+    using p_value = typename t_impl_::p_value;
+    using P_value = typename t_impl_::P_value;
+    using R_value = typename t_impl_::R_value;
+    using x_value = typename t_impl_::x_value;
 
     t_pushlist();
 
@@ -59,22 +61,22 @@ namespace pushlist
 
     p_value push_back();
     p_value push_back(t_err);
-    p_value push_back(       const t_value&);
-    p_value push_back(t_err, const t_value&);
-    p_value push_back(       t_value&&);
-    p_value push_back(t_err, t_value&&);
+    p_value push_back(       R_value);
+    p_value push_back(t_err, R_value);
+    p_value push_back(       x_value);
+    p_value push_back(t_err, x_value);
 
     t_bool is_full      () const;
     t_bool is_empty     () const;
     t_n    get_size     () const;
     t_n    get_capacity () const;
 
-    p_value   get(       t_ix);
-    p_value   get(t_err, t_ix);
-    p_cvalue  get(       t_ix) const;
-    p_cvalue  get(t_err, t_ix) const;
-    p_cvalue cget(       t_ix) const;
-    p_cvalue cget(t_err, t_ix) const;
+    p_value  get(       t_ix);
+    p_value  get(t_err, t_ix);
+    P_value  get(       t_ix) const;
+    P_value  get(t_err, t_ix) const;
+    P_value cget(       t_ix) const;
+    P_value cget(t_err, t_ix) const;
 
     template<typename F> t_void  each(       F);
     template<typename F> t_void  each(t_err, F);
@@ -93,9 +95,11 @@ namespace pushlist
   class t_pushlist<T, 0> {
     using t_impl_ = t_list<T, 0>;
   public:
-    using t_value  = typename t_impl_::t_value;
-    using p_value  = typename t_impl_::p_value;
-    using p_cvalue = typename t_impl_::p_cvalue;
+    using t_value = typename t_impl_::t_value;
+    using p_value = typename t_impl_::p_value;
+    using P_value = typename t_impl_::P_value;
+    using R_value = typename t_impl_::R_value;
+    using x_value = typename t_impl_::x_value;
 
     t_pushlist(       t_n max);
     t_pushlist(t_err, t_n max);
@@ -109,22 +113,22 @@ namespace pushlist
 
     p_value push_back();
     p_value push_back(t_err);
-    p_value push_back(       const t_value&);
-    p_value push_back(t_err, const t_value&);
-    p_value push_back(       t_value&&);
-    p_value push_back(t_err, t_value&&);
+    p_value push_back(       R_value);
+    p_value push_back(t_err, R_value);
+    p_value push_back(       x_value);
+    p_value push_back(t_err, x_value);
 
     t_bool is_full      () const;
     t_bool is_empty     () const;
     t_n    get_size     () const;
     t_n    get_capacity () const;
 
-    p_value   get(       t_ix);
-    p_value   get(t_err, t_ix);
-    p_cvalue  get(       t_ix) const;
-    p_cvalue  get(t_err, t_ix) const;
-    p_cvalue cget(       t_ix) const;
-    p_cvalue cget(t_err, t_ix) const;
+    p_value  get(       t_ix);
+    p_value  get(t_err, t_ix);
+    P_value  get(       t_ix) const;
+    P_value  get(t_err, t_ix) const;
+    P_value cget(       t_ix) const;
+    P_value cget(t_err, t_ix) const;
 
     template<typename F> t_void  each(       F);
     template<typename F> t_void  each(t_err, F);
@@ -165,28 +169,28 @@ namespace pushlist
   template<typename T, t_n_ N>
   inline
   typename t_pushlist<T, N>::p_value
-    t_pushlist<T, N>::push_back(const t_value& value) {
+    t_pushlist<T, N>::push_back(R_value value) {
     return impl_.push_back(value);
   }
 
   template<typename T, t_n_ N>
   inline
   typename t_pushlist<T, N>::p_value
-    t_pushlist<T, N>::push_back(t_err err, const t_value& value) {
+    t_pushlist<T, N>::push_back(t_err err, R_value value) {
     return impl_.push_back(err, value);
   }
 
   template<typename T, t_n_ N>
   inline
   typename t_pushlist<T, N>::p_value
-    t_pushlist<T, N>::push_back(t_value&& value) {
+    t_pushlist<T, N>::push_back(x_value value) {
     return impl_.push_back(std::move(value));
   }
 
   template<typename T, t_n_ N>
   inline
   typename t_pushlist<T, N>::p_value
-    t_pushlist<T, N>::push_back(t_err err, t_value&& value) {
+    t_pushlist<T, N>::push_back(t_err err, x_value value) {
     return impl_.push_back(err, std::move(value));
   }
 
@@ -229,26 +233,26 @@ namespace pushlist
 
   template<typename T, t_n_ N>
   inline
-  typename t_pushlist<T, N>::p_cvalue t_pushlist<T, N>::get(t_ix ix) const {
+  typename t_pushlist<T, N>::P_value t_pushlist<T, N>::get(t_ix ix) const {
     return impl_.get(ix);
   }
 
   template<typename T, t_n_ N>
   inline
-  typename t_pushlist<T, N>::p_cvalue t_pushlist<T, N>::get(t_err err,
+  typename t_pushlist<T, N>::P_value t_pushlist<T, N>::get(t_err err,
                                                             t_ix ix) const {
     return impl_.get(err, ix);
   }
 
   template<typename T, t_n_ N>
   inline
-  typename t_pushlist<T, N>::p_cvalue t_pushlist<T, N>::cget(t_ix ix) const {
+  typename t_pushlist<T, N>::P_value t_pushlist<T, N>::cget(t_ix ix) const {
     return impl_.cget(ix);
   }
 
   template<typename T, t_n_ N>
   inline
-  typename t_pushlist<T, N>::p_cvalue t_pushlist<T, N>::cget(t_err err,
+  typename t_pushlist<T, N>::P_value t_pushlist<T, N>::cget(t_err err,
                                                              t_ix ix) const {
     return impl_.cget(err, ix);
   }
@@ -328,28 +332,28 @@ namespace pushlist
   template<typename T>
   inline
   typename t_pushlist<T, 0>::p_value
-    t_pushlist<T, 0>::push_back(const t_value& value) {
+    t_pushlist<T, 0>::push_back(R_value value) {
     return impl_.push_back(value);
   }
 
   template<typename T>
   inline
   typename t_pushlist<T, 0>::p_value
-    t_pushlist<T, 0>::push_back(t_err err, const t_value& value) {
+    t_pushlist<T, 0>::push_back(t_err err, R_value value) {
     return impl_.push_back(err, value);
   }
 
   template<typename T>
   inline
   typename t_pushlist<T, 0>::p_value
-    t_pushlist<T, 0>::push_back(t_value&& value) {
+    t_pushlist<T, 0>::push_back(x_value value) {
     return impl_.push_back(std::move(value));
   }
 
   template<typename T>
   inline
   typename t_pushlist<T, 0>::p_value
-    t_pushlist<T, 0>::push_back(t_err err, t_value&& value) {
+    t_pushlist<T, 0>::push_back(t_err err, x_value value) {
     return impl_.push_back(err, std::move(value));
   }
 
@@ -392,26 +396,26 @@ namespace pushlist
 
   template<typename T>
   inline
-  typename t_pushlist<T, 0>::p_cvalue t_pushlist<T, 0>::get(t_ix ix) const {
+  typename t_pushlist<T, 0>::P_value t_pushlist<T, 0>::get(t_ix ix) const {
     return impl_.get(ix);
   }
 
   template<typename T>
   inline
-  typename t_pushlist<T, 0>::p_cvalue t_pushlist<T, 0>::get(t_err err,
+  typename t_pushlist<T, 0>::P_value t_pushlist<T, 0>::get(t_err err,
                                                             t_ix ix) const {
     return impl_.get(err, ix);
   }
 
   template<typename T>
   inline
-  typename t_pushlist<T, 0>::p_cvalue t_pushlist<T, 0>::cget(t_ix ix) const {
+  typename t_pushlist<T, 0>::P_value t_pushlist<T, 0>::cget(t_ix ix) const {
     return impl_.cget(ix);
   }
 
   template<typename T>
   inline
-  typename t_pushlist<T, 0>::p_cvalue t_pushlist<T, 0>::cget(t_err err,
+  typename t_pushlist<T, 0>::P_value t_pushlist<T, 0>::cget(t_err err,
                                                              t_ix ix) const {
     return impl_.cget(err, ix);
   }

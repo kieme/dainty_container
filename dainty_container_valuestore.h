@@ -72,14 +72,15 @@ namespace valuestore
   template<typename T>
   class t_valuestore {
   public:
-    using t_bytes  = t_uchar[sizeof(T)];
-    using r_bytes  = t_bytes&;
-    using r_cbytes = const t_bytes&;
-    using t_value  = T;
-    using r_value  = T&;
-    using r_cvalue = const T&;
-    using p_value  = T*;
-    using p_cvalue = const T*;
+    using t_bytes = t_uchar[sizeof(T)];
+    using r_bytes = t_bytes&;
+    using R_bytes = const t_bytes&;        // arrays?
+    using t_value = typename named::t_prefix<T>::t_;
+    using r_value = typename named::t_prefix<T>::r_;
+    using R_value = typename named::t_prefix<T>::R_;
+    using p_value = typename named::t_prefix<T>::p_;
+    using P_value = typename named::t_prefix<T>::P_;
+    using x_value = typename named::t_prefix<T>::x_;
 
     constexpr static t_n get_size() {
       return sizeof(T);
@@ -89,11 +90,11 @@ namespace valuestore
       return construct_(ptr());
     }
 
-    p_value copy_construct(const T& value) {
+    p_value copy_construct(r_value value) {
       return construct_(ptr(), value);
     }
 
-    p_value move_construct(T&& value) {
+    p_value move_construct(x_value value) {
       return construct_(ptr(), std::move(value));
     }
 
@@ -101,25 +102,25 @@ namespace valuestore
       destruct_(ptr());
     }
 
-    p_value   ptr()         { return mk_ptr(); }
-    p_cvalue  ptr() const   { return mk_ptr(); }
-    p_cvalue cptr() const   { return mk_ptr(); }
+    p_value  ptr()         { return mk_ptr(); }
+    P_value  ptr() const   { return mk_ptr(); }
+    P_value cptr() const   { return mk_ptr(); }
 
-    r_value   ref()         { return  *ptr(); }
-    r_cvalue  ref() const   { return  *ptr(); }
-    r_cvalue cref() const   { return *cptr(); }
+    r_value  ref()         { return  *ptr(); }
+    R_value  ref() const   { return  *ptr(); }
+    R_value cref() const   { return *cptr(); }
 
-    r_bytes   bytes()       { return store_; }
-    r_cbytes  bytes() const { return store_; }
-    r_cbytes cbytes() const { return store_; }
+    r_bytes  bytes()       { return store_; }
+    R_bytes  bytes() const { return store_; }
+    R_bytes cbytes() const { return store_; }
 
   private:
     p_value mk_ptr() {
-      return reinterpret_cast<t_value*>(&store_[0]);
+      return reinterpret_cast<p_value>(&store_[0]);
     }
 
-    p_cvalue mk_ptr() const {
-      return reinterpret_cast<const t_value*>(&store_[0]);
+    P_value mk_ptr() const {
+      return reinterpret_cast<P_value>(&store_[0]);
     }
 
     alignas(t_value) t_bytes store_;

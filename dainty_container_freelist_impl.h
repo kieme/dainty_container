@@ -50,11 +50,12 @@ namespace freelist
 
   template<typename T>
   struct t_result {
-    using t_id     = freelist::t_id;
-    using r_value  = T&;
-    using r_cvalue = const T&;
-    using p_value  = T*;
-    using p_cvalue = const T*;
+    using t_id    = freelist::t_id;
+    using t_value = typename named::t_prefix<T>::t_;
+    using r_value = typename named::t_prefix<T>::r_;
+    using R_value = typename named::t_prefix<T>::R_;
+    using p_value = typename named::t_prefix<T>::p_;
+    using P_value = typename named::t_prefix<T>::P_;
 
     t_id    id;
     p_value ptr;
@@ -63,10 +64,10 @@ namespace freelist
     inline t_result(t_id_ _id, p_value _ptr) : id(_id), ptr(_ptr)    { }
 
     inline operator t_bool() const                      { return  ptr; }
-    inline r_value  operator*()                         { return *ptr; }
-    inline r_cvalue operator*() const                   { return *ptr; }
-    inline p_value  operator->()                        { return  ptr; }
-    inline p_cvalue operator->() const                  { return  ptr; }
+    inline r_value operator*()                          { return *ptr; }
+    inline R_value operator*() const                    { return *ptr; }
+    inline p_value operator->()                         { return  ptr; }
+    inline P_value operator->() const                   { return  ptr; }
   };
 
   template<typename T>
@@ -83,17 +84,18 @@ namespace freelist
     enum { USED = 0xFFFFFFFF }; // XXX - not a good idea - change later
   public:
     using t_id     = freelist::t_id;
-    using t_result = freelist::t_result<T>;
-    using t_entry  = freelist::t_entry<T>;
-    using p_entry  = t_entry*;
-    using p_centry = const t_entry*;
-    using r_entry  = t_entry&;
-    using r_centry = const t_entry&;
-    using t_value  = T;
-    using p_value  = T*;
-    using p_cvalue = const T*;
-    using r_value  = T&;
-    using r_cvalue = const T&;
+    using t_result = typename freelist::t_result<T>;
+    using t_entry  = typename freelist::t_entry<T>;
+    using p_entry  = typename named::t_prefix<t_entry>::p_;
+    using P_entry  = typename named::t_prefix<t_entry>::P_;
+    using r_entry  = typename named::t_prefix<t_entry>::r_;
+    using R_entry  = typename named::t_prefix<t_entry>::R_;
+    using t_value  = typename named::t_prefix<T>::t_;
+    using p_value  = typename named::t_prefix<T>::p_;
+    using P_value  = typename named::t_prefix<T>::P_;
+    using r_value  = typename named::t_prefix<T>::r_;
+    using R_value  = typename named::t_prefix<T>::R_;
+    using x_value  = typename named::t_prefix<T>::x_;
 
     inline
     t_freelist_impl_(p_entry _entry, t_n_ max) : size_{0}, free_{0} {
@@ -150,7 +152,7 @@ namespace freelist
     }
 
     inline
-    t_result insert(p_entry _entry, t_n_ max, r_cvalue value) {
+    t_result insert(p_entry _entry, t_n_ max, R_value value) {
       if (free_ < max) {
         r_entry entry = _entry[free_];
         t_result tmp(free_, entry.store_.copy_construct(value));
@@ -163,7 +165,7 @@ namespace freelist
     }
 
     inline
-    t_result insert(t_err& err, p_entry _entry, t_n_ max, r_cvalue value) {
+    t_result insert(t_err& err, p_entry _entry, t_n_ max, R_value value) {
       T_ERR_GUARD(err) {
         if (_entry) {
           if (free_ < max) {
@@ -182,7 +184,7 @@ namespace freelist
     }
 
     inline
-    t_result insert(p_entry _entry, t_n_ max, t_value&& value) {
+    t_result insert(p_entry _entry, t_n_ max, x_value value) {
       if (free_ < max) {
         r_entry entry = _entry[free_];
         t_result tmp(free_, entry.store_.move_construct(std::move(value)));
@@ -195,7 +197,7 @@ namespace freelist
     }
 
     inline
-    t_result insert(t_err& err, p_entry _entry, t_n_ max, t_value&& value) {
+    t_result insert(t_err& err, p_entry _entry, t_n_ max, x_value value) {
       T_ERR_GUARD(err) {
         if (_entry) {
           if (free_ < max) {
@@ -253,7 +255,7 @@ namespace freelist
     }
 
     inline
-    t_bool erase(p_entry entry, t_n_ max, p_cvalue p) {
+    t_bool erase(p_entry entry, t_n_ max, P_value p) {
       named::t_uint64 begin = (named::t_uint64)entry,
                       end   = begin + (sizeof(t_entry)*max),
                       pos   = (named::t_uint64)p;
@@ -263,7 +265,7 @@ namespace freelist
     }
 
     inline
-    t_bool erase(t_err& err, p_entry entry, t_n_ max, p_cvalue p) {
+    t_bool erase(t_err& err, p_entry entry, t_n_ max, P_value p) {
       T_ERR_GUARD(err) {
         named::t_uint64 begin = (named::t_uint64)entry,
                         end   = begin + (sizeof(t_entry)*max),
@@ -350,9 +352,9 @@ namespace freelist
     }
 
     inline
-    p_cvalue get(p_centry _entry, t_n_ max, t_id_ id) const {
+    P_value get(P_entry _entry, t_n_ max, t_id_ id) const {
       if (id < max) {
-        r_centry entry = _entry[id];
+        R_entry entry = _entry[id];
         if (entry.free_ == USED)
           return entry.store_.cptr();
       }
@@ -360,11 +362,11 @@ namespace freelist
     }
 
     inline
-    p_cvalue get(t_err err, p_centry _entry, t_n_ max, t_id_ id) const {
+    P_value get(t_err err, P_entry _entry, t_n_ max, t_id_ id) const {
       T_ERR_GUARD(err) {
         if (_entry) {
           if (id < max) {
-            r_centry entry = _entry[id];
+            R_entry entry = _entry[id];
             if (entry.free_ == USED)
               return entry.store_.cptr();
             err = E_UNUSED_ID;
@@ -403,9 +405,9 @@ namespace freelist
 
     template<typename F>
     inline
-    t_void each(p_centry _entry, t_n_ max, F f) const {
+    t_void each(P_entry _entry, t_n_ max, F f) const {
       for (t_id_ id = 0; id < max; ++id) {
-        r_centry entry = _entry[id];
+        R_entry entry = _entry[id];
         if (entry.free_ == USED)
           f(t_id{id}, entry.store_.cref());
       }
@@ -413,11 +415,11 @@ namespace freelist
 
     template<typename F>
     inline
-    t_void each(t_err err, p_centry _entry, t_n_ max, F f) const {
+    t_void each(t_err err, P_entry _entry, t_n_ max, F f) const {
       T_ERR_GUARD(err) {
         if (_entry) {
           for (t_id_ id = 0; id < max; ++id) {
-            r_centry entry = _entry[id];
+            R_entry entry = _entry[id];
             if (entry.free_ == USED)
               f(t_id{id}, entry.store_.cref());
           }

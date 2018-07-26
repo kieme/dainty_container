@@ -51,26 +51,27 @@ namespace map
   class t_map {
     using t_impl_ = t_map_impl_<N, K, T, C, t_is_builtin_<K>::RESULT>;
   public:
-    using t_compare   = typename t_impl_::t_compare;
-    using t_keyvalue  = typename t_impl_::t_keyvalue;
-    using r_ckeyvalue = typename t_impl_::r_ckeyvalue;
-    using p_keyvalue  = typename t_impl_::p_keyvalue;
-    using p_ckeyvalue = typename t_impl_::p_ckeyvalue;
-    using t_key       = typename t_impl_::t_key;
-    using r_ckey      = typename t_impl_::r_ckey;
-    using t_value     = typename t_impl_::t_value;
-    using t_result    = typename t_impl_::t_result;
-    using t_cresult   = typename t_impl_::t_cresult;
+    using t_compare  = typename t_impl_::t_compare;
+    using t_keyvalue = typename t_impl_::t_keyvalue;
+    using R_keyvalue = typename t_impl_::R_keyvalue;
+    using p_keyvalue = typename t_impl_::p_keyvalue;
+    using P_keyvalue = typename t_impl_::P_keyvalue;
+    using x_keyvalue = typename t_impl_::x_keyvalue;
+    using t_key      = typename t_impl_::t_key;
+    using R_key      = typename t_impl_::R_key;
+    using t_value    = typename t_impl_::t_value;
+    using t_result   = typename t_impl_::t_result;
+    using t_cresult  = typename t_impl_::t_cresult;
 
-    t_result insert(       r_ckey);
-    t_result insert(t_err, r_ckey);
-    t_result insert(       r_ckeyvalue);
-    t_result insert(t_err, r_ckeyvalue);
-    t_result insert(       t_keyvalue&&);
-    t_result insert(t_err, t_keyvalue&&);
+    t_result insert(       R_key);
+    t_result insert(t_err, R_key);
+    t_result insert(       R_keyvalue);
+    t_result insert(t_err, R_keyvalue);
+    t_result insert(       x_keyvalue);
+    t_result insert(t_err, x_keyvalue);
 
-    t_bool erase(       r_ckey);
-    t_bool erase(t_err, r_ckey);
+    t_bool erase(       R_key);
+    t_bool erase(t_err, R_key);
     t_bool erase(       t_ix);
     t_bool erase(t_err, t_ix);
     t_bool erase(       t_id);
@@ -79,28 +80,28 @@ namespace map
     t_void clear();
     t_void clear(t_err);
 
-    t_result  find(       r_ckey);
-    t_result  find(t_err, r_ckey);
-    t_cresult find(       r_ckey) const;
-    t_cresult find(t_err, r_ckey) const;
+    t_result  find(       R_key);
+    t_result  find(t_err, R_key);
+    t_cresult find(       R_key) const;
+    t_cresult find(t_err, R_key) const;
 
     t_n    get_size() const;
     t_n    get_capacity() const;
     t_bool is_empty() const;
 
-    p_keyvalue   get(       t_ix);
-    p_keyvalue   get(t_err, t_ix);
-    p_ckeyvalue  get(       t_ix) const;
-    p_ckeyvalue  get(t_err, t_ix) const;
-    p_ckeyvalue cget(       t_ix) const;
-    p_ckeyvalue cget(t_err, t_ix) const;
+    p_keyvalue  get(       t_ix);
+    p_keyvalue  get(t_err, t_ix);
+    P_keyvalue  get(       t_ix) const;
+    P_keyvalue  get(t_err, t_ix) const;
+    P_keyvalue cget(       t_ix) const;
+    P_keyvalue cget(t_err, t_ix) const;
 
-    p_keyvalue   get(       t_id);
-    p_keyvalue   get(t_err, t_id);
-    p_ckeyvalue  get(       t_id) const;
-    p_ckeyvalue  get(t_err, t_id) const;
-    p_ckeyvalue cget(       t_id) const;
-    p_ckeyvalue cget(t_err, t_id) const;
+    p_keyvalue  get(       t_id);
+    p_keyvalue  get(t_err, t_id);
+    P_keyvalue  get(       t_id) const;
+    P_keyvalue  get(t_err, t_id) const;
+    P_keyvalue cget(       t_id) const;
+    P_keyvalue cget(t_err, t_id) const;
 
     template<typename F> t_void  each(       F);
     template<typename F> t_void  each(t_err, F);
@@ -124,54 +125,54 @@ namespace map
 
   template<t_n_ N, typename K, typename T, typename C>
   inline
-  typename t_map<N, K, T, C>::t_result t_map<N, K, T, C>::insert(r_ckey key) {
+  typename t_map<N, K, T, C>::t_result t_map<N, K, T, C>::insert(R_key key) {
     return impl_.insert(key);
   }
 
   template<t_n_ N, typename K, typename T, typename C>
   inline
   typename t_map<N, K, T, C>::t_result t_map<N, K, T, C>::insert(t_err err,
-                                                                 r_ckey key) {
+                                                                 R_key key) {
     return impl_.insert(err, key);
   }
 
   template<t_n_ N, typename K, typename T, typename C>
   inline
   typename t_map<N, K, T, C>::t_result
-    t_map<N, K, T, C>::insert(r_ckeyvalue keyvalue) {
+    t_map<N, K, T, C>::insert(R_keyvalue keyvalue) {
     return impl_.insert(keyvalue);
   }
 
   template<t_n_ N, typename K, typename T, typename C>
   inline
   typename t_map<N, K, T, C>::t_result
-    t_map<N, K, T, C>::insert(t_err err, r_ckeyvalue keyvalue) {
+    t_map<N, K, T, C>::insert(t_err err, R_keyvalue keyvalue) {
     return impl_.insert(err, keyvalue);
   }
 
   template<t_n_ N, typename K, typename T, typename C>
   inline
   typename t_map<N, K, T, C>::t_result
-    t_map<N, K, T, C>::insert(t_keyvalue&& keyvalue) {
+    t_map<N, K, T, C>::insert(x_keyvalue keyvalue) {
     return impl_.insert(std::move(keyvalue));
   }
 
   template<t_n_ N, typename K, typename T, typename C>
   inline
   typename t_map<N, K, T, C>::t_result
-    t_map<N, K, T, C>::insert(t_err err, t_keyvalue&& keyvalue) {
+    t_map<N, K, T, C>::insert(t_err err, x_keyvalue keyvalue) {
     return impl_.insert(err, std::move(keyvalue));
   }
 
   template<t_n_ N, typename K, typename T, typename C>
   inline
-  t_bool t_map<N, K, T, C>::erase(r_ckey key) {
+  t_bool t_map<N, K, T, C>::erase(R_key key) {
     return impl_.erase(key);
   }
 
   template<t_n_ N, typename K, typename T, typename C>
   inline
-  t_bool t_map<N, K, T, C>::erase(t_err err, r_ckey key) {
+  t_bool t_map<N, K, T, C>::erase(t_err err, R_key key) {
     return impl_.erase(err, key);
   }
 
@@ -214,28 +215,28 @@ namespace map
   template<t_n_ N, typename K, typename T, typename C>
   inline
   typename t_map<N, K, T, C>::t_result
-    t_map<N, K, T, C>::find(r_ckey key) {
+    t_map<N, K, T, C>::find(R_key key) {
     return impl_.find(key);
   }
 
   template<t_n_ N, typename K, typename T, typename C>
   inline
   typename t_map<N, K, T, C>::t_result
-    t_map<N, K, T, C>::find(t_err err, r_ckey key) {
+    t_map<N, K, T, C>::find(t_err err, R_key key) {
     return impl_.find(err, key);
   }
 
   template<t_n_ N, typename K, typename T, typename C>
   inline
   typename t_map<N, K, T, C>::t_cresult
-    t_map<N, K, T, C>::find(r_ckey key) const {
+    t_map<N, K, T, C>::find(R_key key) const {
     return impl_.find(key);
   }
 
   template<t_n_ N, typename K, typename T, typename C>
   inline
   typename t_map<N, K, T, C>::t_cresult
-    t_map<N, K, T, C>::find(t_err err, r_ckey key) const {
+    t_map<N, K, T, C>::find(t_err err, R_key key) const {
     return impl_.find(err, key);
   }
 
@@ -273,21 +274,21 @@ namespace map
 
   template<t_n_ N, typename K, typename T, typename C>
   inline
-  typename t_map<N, K, T, C>::p_ckeyvalue
+  typename t_map<N, K, T, C>::P_keyvalue
     t_map<N, K, T, C>::get(t_ix ix) const {
     return impl_.get(ix);
   }
 
   template<t_n_ N, typename K, typename T, typename C>
   inline
-  typename t_map<N, K, T, C>::p_ckeyvalue
+  typename t_map<N, K, T, C>::P_keyvalue
     t_map<N, K, T, C>::cget(t_ix ix) const {
     return impl_.get(ix);
   }
 
   template<t_n_ N, typename K, typename T, typename C>
   inline
-  typename t_map<N, K, T, C>::p_ckeyvalue
+  typename t_map<N, K, T, C>::P_keyvalue
     t_map<N, K, T, C>::cget(t_err err, t_ix ix) const {
     return impl_.get(err, ix);
   }
@@ -308,28 +309,28 @@ namespace map
 
   template<t_n_ N, typename K, typename T, typename C>
   inline
-  typename t_map<N, K, T, C>::p_ckeyvalue
+  typename t_map<N, K, T, C>::P_keyvalue
     t_map<N, K, T, C>::get(t_id id) const {
     return impl_.get(id);
   }
 
   template<t_n_ N, typename K, typename T, typename C>
   inline
-  typename t_map<N, K, T, C>::p_ckeyvalue
+  typename t_map<N, K, T, C>::P_keyvalue
     t_map<N, K, T, C>::get(t_err err, t_id id) const {
     return impl_.get(err, id);
   }
 
   template<t_n_ N, typename K, typename T, typename C>
   inline
-  typename t_map<N, K, T, C>::p_ckeyvalue
+  typename t_map<N, K, T, C>::P_keyvalue
     t_map<N, K, T, C>::cget(t_id id) const {
     return impl_.get(id);
   }
 
   template<t_n_ N, typename K, typename T, typename C>
   inline
-  typename t_map<N, K, T, C>::p_ckeyvalue
+  typename t_map<N, K, T, C>::P_keyvalue
     t_map<N, K, T, C>::cget(t_err err, t_id id) const {
     return impl_.get(err, id);
   }

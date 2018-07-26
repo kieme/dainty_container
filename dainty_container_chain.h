@@ -48,11 +48,9 @@ namespace chain
   template<typename T>
   class t_item final {
   public:
-    using t_value  = T;
-    using r_value  = T&;
-    using r_cvalue = const T&;
-    using p_item   = t_item*;
-    using p_citem  = const t_item*;
+    using t_value = typename named::t_prefix<T>::t_;
+    using p_item  = typename named::t_prefix<t_item>::p_;
+    using P_item  = typename named::t_prefix<t_item>::P_;
 
     t_item() = default;
 
@@ -68,9 +66,9 @@ namespace chain
   template<typename T>
   class t_chain final {
   public:
-    using t_n     = chain::t_n;
-    using p_item  = t_item<T>*;
-    using p_citem = const t_item<T>*;
+    using t_n    = chain::t_n;
+    using p_item = typename named::t_prefix<t_item<T> >::p_;
+    using P_item = typename named::t_prefix<t_item<T> >::P_;
 
     operator t_validity() const;
 
@@ -116,7 +114,7 @@ namespace chain
   template<typename F>
   inline
   t_void t_chain<T>::each(F f) const {
-    for (p_citem item = head; item; item = item->next)
+    for (P_item item = head; item; item = item->next)
       f(item->value);
   }
 
@@ -125,7 +123,7 @@ namespace chain
   inline
   t_void t_chain<T>::each(t_err err, F f) const {
     T_ERR_GUARD(err) {
-      for (p_citem item = head; item; item = item->next)
+      for (P_item item = head; item; item = item->next)
         f(item->value);
     }
   }
@@ -134,7 +132,7 @@ namespace chain
   template<typename F>
   inline
   t_void t_chain<T>::ceach(F f) const {
-    for (p_citem item = head; item; item = item->next)
+    for (P_item item = head; item; item = item->next)
       f(item->value);
   }
 
@@ -143,7 +141,7 @@ namespace chain
   inline
   t_void t_chain<T>::ceach(t_err err, F f) const {
     T_ERR_GUARD(err) {
-      for (p_citem item = head; item; item = item->next)
+      for (P_item item = head; item; item = item->next)
         f(item->value);
     }
   }

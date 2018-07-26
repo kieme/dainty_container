@@ -51,11 +51,11 @@ namespace chained_queue
   template<typename T>
   class t_item final {
   public:
-    using t_value  = T;
-    using r_value  = T&;
-    using r_cvalue = const T&;
-    using p_item   = t_item*;
-    using p_citem  = const t_item*;
+    using t_value  = typename named::t_prefix<T>::t_;
+    using r_value  = typename named::t_prefix<T>::r_;
+    using R_value  = typename named::t_prefix<T>::R_;
+    using p_item   = typename named::t_prefix<t_item>::p_;
+    using P_item   = typename named::t_prefix<t_item>::P_;
 
     t_item() = default;
 
@@ -64,13 +64,13 @@ namespace chained_queue
     t_item& operator=(const t_item&) = delete;
     t_item& operator=(t_item&&)      = delete;
 
-    p_item   next()        { return next_;  }
-    p_citem  next() const  { return next_;  }
-    p_citem cnext() const  { return next_;  }
+    p_item  next()        { return next_;  }
+    P_item  next() const  { return next_;  }
+    P_item cnext() const  { return next_;  }
 
-    r_value   ref()        { return value_; }
-    r_cvalue  ref() const  { return value_; }
-    r_cvalue cref() const  { return value_; }
+    r_value  ref()        { return value_; }
+    R_value  ref() const  { return value_; }
+    R_value cref() const  { return value_; }
 
   private:
     template<class>        friend class t_chain;
@@ -84,9 +84,9 @@ namespace chained_queue
   template<typename T>
   class t_chain final {
   public:
-    using t_n     = chained_queue::t_n;
-    using p_item  = t_item<T>*;
-    using p_citem = const t_item<T>*;
+    using t_n    = chained_queue::t_n;
+    using p_item = typename named::t_prefix<t_item<T> >::p_;
+    using P_item = typename named::t_prefix<t_item<T> >::P_;
 
     t_n    cnt   = t_n{0};
     p_item head  = nullptr;
@@ -105,12 +105,13 @@ namespace chained_queue
   template<typename T, typename S>
   class t_chained_queue_impl_ {
   public:
-    using t_store  = S;
-    using r_store  = S&;
-    using r_cstore = const S&;
-    using t_chain  = chained_queue::t_chain<T>;
-    using t_n      = chained_queue::t_n;
-    using p_item   = t_item<T>*;
+    using t_n     = chained_queue::t_n;
+    using t_store = typename named::t_prefix<S>::t_;
+    using r_store = typename named::t_prefix<S>::r_;
+    using R_store = typename named::t_prefix<S>::R_;
+    using p_item  = typename named::t_prefix<t_item<T> >::p_;
+    using t_chain = typename named::t_prefix<chained_queue::t_chain<T> >::t_;
+    using r_chain = typename named::t_prefix<chained_queue::t_chain<T> >::r_;
 
     t_chain acquire(r_store store, t_n n) {
       if (store == VALID) {
@@ -164,7 +165,7 @@ namespace chained_queue
       return {};
     }
 
-    t_void release(r_store store, t_chain& chain) {
+    t_void release(r_store store, r_chain chain) {
       if (store == VALID) {
         for (p_item item = chain.head; item; item = item->next_)
           store.erase(item->id_);
@@ -180,7 +181,7 @@ namespace chained_queue
       }
     }
 
-    t_void insert(r_store store, t_chain& chain) {
+    t_void insert(r_store store, r_chain chain) {
       if (store == VALID) {
         if (get(chain.cnt)) {
           if (get(chain_.cnt))
@@ -193,7 +194,7 @@ namespace chained_queue
       }
     }
 
-    t_void insert(t_err& err, r_store store, t_chain& chain) {
+    t_void insert(t_err& err, r_store store, r_chain chain) {
       T_ERR_GUARD(err) {
         if (store == VALID) {
           if (get(chain.cnt)) {
@@ -258,23 +259,23 @@ namespace chained_queue
       return {};
     }
 
-    p_item get_tail(r_cstore) {
+    p_item get_tail(R_store) {
       return chain_.tail;
     }
 
-    t_bool is_empty(r_cstore) const {
+    t_bool is_empty(R_store) const {
       return !get(chain_.cnt);
     }
 
-    t_bool is_full(r_cstore store) const {
+    t_bool is_full(R_store store) const {
       return get(store.get_capacity()) == get(chain_.cnt);
     }
 
-    t_n get_capacity(r_cstore store) const {
+    t_n get_capacity(R_store store) const {
       return store.get_capacity();
     }
 
-    t_n get_size(r_cstore store) const {
+    t_n get_size(R_store store) const {
       return chain_.cnt;
     }
 
@@ -306,7 +307,7 @@ namespace chained_queue
   template<typename F>
   inline
   t_void t_chain<T>::each(F f) const {
-    for (p_citem item = head; item; item = item->next_)
+    for (P_item item = head; item; item = item->next_)
       f(item->cref());
   }
 
@@ -315,7 +316,7 @@ namespace chained_queue
   inline
   t_void t_chain<T>::each(t_err err, F f) const {
     T_ERR_GUARD(err) {
-      for (p_citem item = head; item; item = item->next_)
+      for (P_item item = head; item; item = item->next_)
         f(item->cref());
     }
   }
@@ -324,7 +325,7 @@ namespace chained_queue
   template<typename F>
   inline
   t_void t_chain<T>::ceach(F f) const {
-    for (p_citem item = head; item; item = item->next_)
+    for (P_item item = head; item; item = item->next_)
       f(item->cref());
   }
 
@@ -333,7 +334,7 @@ namespace chained_queue
   inline
   t_void t_chain<T>::ceach(t_err err, F f) const {
     T_ERR_GUARD(err) {
-      for (p_citem item = head; item; item = item->next_)
+      for (P_item item = head; item; item = item->next_)
         f(item->cref());
     }
   }

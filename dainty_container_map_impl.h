@@ -65,8 +65,8 @@ namespace map
 
   template<typename K, typename T>
   struct t_keyvalue {
-    using t_key    = K;
-    using t_value  = T;
+    using t_key    = typename named::t_prefix<K>::t_;
+    using t_value  = typename named::t_prefix<T>::t_;
 
     const t_key key;
     t_value     value;
@@ -100,10 +100,11 @@ namespace map
 
   template<typename K, typename T>
   struct t_result {
-    using r_keyvalue  = t_keyvalue<K, T>&;
-    using r_ckeyvalue = const t_keyvalue<K, T>&;
-    using p_keyvalue  = t_keyvalue<K, T>*;
-    using p_ckeyvalue = const t_keyvalue<K, T>*;
+    using t_keyvalue = typename named::t_prefix<t_keyvalue<K, T> >::t_;
+    using r_keyvalue = typename named::t_prefix<t_keyvalue<K, T> >::r_;
+    using R_keyvalue = typename named::t_prefix<t_keyvalue<K, T> >::R_;
+    using p_keyvalue = typename named::t_prefix<t_keyvalue<K, T> >::p_;
+    using P_keyvalue = typename named::t_prefix<t_keyvalue<K, T> >::P_;
 
     t_id       id;
     t_ix       ix;
@@ -118,56 +119,58 @@ namespace map
       : id(_id), ix(_ix), keyvalue(_keyvalue) {
     }
 
-    inline operator t_bool() const        { return  keyvalue; }
-    inline r_keyvalue  operator* ()       { return *keyvalue; }
-    inline r_ckeyvalue operator* () const { return *keyvalue; }
-    inline p_keyvalue  operator->()       { return  keyvalue; }
-    inline p_ckeyvalue operator->() const { return  keyvalue; }
+    inline operator t_bool() const       { return  keyvalue; }
+    inline r_keyvalue operator* ()       { return *keyvalue; }
+    inline R_keyvalue operator* () const { return *keyvalue; }
+    inline p_keyvalue operator->()       { return  keyvalue; }
+    inline P_keyvalue operator->() const { return  keyvalue; }
   };
 
   template<typename K, typename T>
   struct t_cresult {
-    using r_ckeyvalue = const t_keyvalue<K, T>&;
-    using p_ckeyvalue = const t_keyvalue<K, T>*;
+    using R_keyvalue = typename named::t_prefix<t_keyvalue<K, T> >::R_;
+    using P_keyvalue = typename named::t_prefix<t_keyvalue<K, T> >::P_;
 
     t_id        id;
     t_ix        ix;
-    p_ckeyvalue keyvalue;
+    P_keyvalue keyvalue;
 
     inline
     t_cresult() : id(0), ix(0), keyvalue(nullptr) {
     }
 
     inline
-    t_cresult(t_id _id, t_ix _ix, p_ckeyvalue _keyvalue)
+    t_cresult(t_id _id, t_ix _ix, P_keyvalue _keyvalue)
       : id(_id), ix(_ix), keyvalue(_keyvalue) {
     }
 
-    inline operator t_bool() const        { return  keyvalue; }
-    inline r_ckeyvalue operator* () const { return *keyvalue; }
-    inline p_ckeyvalue operator->() const { return  keyvalue; }
+    inline operator t_bool() const       { return  keyvalue; }
+    inline R_keyvalue operator* () const { return *keyvalue; }
+    inline P_keyvalue operator->() const { return  keyvalue; }
   };
 
   template<typename K, typename T>
   struct t_entry_ {
-    using t_keyvalue  = map::t_keyvalue<K, T>;
-    using t_key       = typename t_keyvalue::t_key;
-    using r_ckeyvalue = const t_keyvalue&;
-    using r_ckey      = const t_key&;
+    using t_keyvalue = typename named::t_prefix<map::t_keyvalue<K, T> >::t_;
+    using R_keyvalue = typename named::t_prefix<map::t_keyvalue<K, T> >::R_;
+    using x_keyvalue = typename named::t_prefix<map::t_keyvalue<K, T> >::x_;
+    using t_key      = typename named::t_prefix<t_keyvalue::t_key>::t_;
+    using R_key      = typename named::t_prefix<t_keyvalue::t_key>::R_;
+    using x_key      = typename named::t_prefix<t_keyvalue::t_key>::x_;
 
     t_keyvalue keyvalue;
     t_ix       ix;
 
-    t_entry_(r_ckey _key, t_ix _ix) : keyvalue{_key}, ix{_ix} {
+    t_entry_(R_key _key, t_ix _ix) : keyvalue{_key}, ix{_ix} {
     }
 
-    t_entry_(t_key&& _key, t_ix _ix) : keyvalue{std::move(_key)}, ix{_ix} {
+    t_entry_(x_key _key, t_ix _ix) : keyvalue{std::move(_key)}, ix{_ix} {
     }
 
-    t_entry_(r_ckeyvalue _keyvalue, t_ix _ix) : keyvalue{_keyvalue}, ix{_ix} {
+    t_entry_(R_keyvalue _keyvalue, t_ix _ix) : keyvalue{_keyvalue}, ix{_ix} {
     }
 
-    t_entry_(t_keyvalue&& _keyvalue, t_ix _ix)
+    t_entry_(x_keyvalue _keyvalue, t_ix _ix)
       : keyvalue{std::move(_keyvalue)}, ix{_ix} {
     }
 
@@ -189,19 +192,20 @@ namespace map
     using t_store_ = freelist::t_freelist<t_entry_, N>;
     using t_ids_   = list::t_list<t_id, N>;
   public:
-    using t_compare   = C;
-    using t_keyvalue  = map::t_keyvalue<K, T>;
-    using r_ckeyvalue = const t_keyvalue&;
-    using p_keyvalue  = t_keyvalue*;
-    using p_ckeyvalue = const t_keyvalue*;
-    using t_key       = typename t_keyvalue::t_key;
-    using r_ckey      = const t_key&;
-    using t_value     = typename t_keyvalue::t_value;
-    using t_result    = map::t_result<t_key,  t_value>;
-    using t_cresult   = map::t_cresult<t_key, t_value>;
+    using t_compare  = C;
+    using t_keyvalue = typename named::t_prefix<map::t_keyvalue<K, T> >::t_;
+    using R_keyvalue = typename named::t_prefix<map::t_keyvalue<K, T> >::R_;
+    using p_keyvalue = typename named::t_prefix<map::t_keyvalue<K, T> >::p_;
+    using P_keyvalue = typename named::t_prefix<map::t_keyvalue<K, T> >::P_;
+    using x_keyvalue = typename named::t_prefix<map::t_keyvalue<K, T> >::x_;
+    using t_key      = typename named::t_prefix<t_keyvalue::t_key>::t_;
+    using R_key      = typename named::t_prefix<t_keyvalue::t_key>::R_;
+    using t_value    = typename named::t_prefix<t_keyvalue::t_value>::t_;
+    using t_result   = map::t_result<t_key,  t_value>;
+    using t_cresult  = map::t_cresult<t_key, t_value>;
 
     inline
-    t_result insert(r_ckey key) {
+    t_result insert(R_key key) {
       t_n_ n = named::get(ids_.get_size());
       if (n < N) {
         t_ix ix = lowerbound_(key);
@@ -217,7 +221,7 @@ namespace map
     }
 
     inline
-    t_result insert(t_err& err, r_ckey key) {
+    t_result insert(t_err& err, R_key key) {
       T_ERR_GUARD(err) {
         t_n_ n = named::get(ids_.get_size());
         if (n < N) {
@@ -237,7 +241,7 @@ namespace map
     }
 
     inline
-    t_result insert(r_ckeyvalue keyvalue) {
+    t_result insert(R_keyvalue keyvalue) {
       t_n_ n = named::get(ids_.get_size());
       if (n < N) {
         t_ix ix = lowerbound_(keyvalue.key);
@@ -253,7 +257,7 @@ namespace map
     }
 
     inline
-    t_result insert(t_err& err, r_ckeyvalue keyvalue) {
+    t_result insert(t_err& err, R_keyvalue keyvalue) {
       T_ERR_GUARD(err) {
         t_n_ n = named::get(ids_.get_size());
         if (n < N) {
@@ -273,7 +277,7 @@ namespace map
     }
 
     inline
-    t_result insert(t_keyvalue&& keyvalue) {
+    t_result insert(x_keyvalue keyvalue) {
       t_n_ n = named::get(ids_.get_size());
       if (n < N) {
         t_ix ix = lowerbound_(keyvalue.key);
@@ -289,7 +293,7 @@ namespace map
     }
 
     inline
-    t_result insert(t_err& err, t_keyvalue&& keyvalue) {
+    t_result insert(t_err& err, x_keyvalue keyvalue) {
       T_ERR_GUARD(err) {
         t_n_ n = named::get(ids_.get_size());
         if (n < N) {
@@ -309,7 +313,7 @@ namespace map
     }
 
     inline
-    t_bool erase(r_ckey key) {
+    t_bool erase(R_key key) {
       t_n_ n = named::get(ids_.get_size());
       if (n) {
         t_ix ix = lowerbound(key);
@@ -325,7 +329,7 @@ namespace map
     }
 
     inline
-    t_bool erase(t_err& err, r_ckey key) {
+    t_bool erase(t_err& err, R_key key) {
       T_ERR_GUARD(err) {
         t_n_ n = named::get(ids_.get_size());
         if (n) {
@@ -402,7 +406,7 @@ namespace map
     }
 
     inline
-    t_result find(r_ckey key) {
+    t_result find(R_key key) {
       t_n_ n = named::get(ids_.get_size());
       if (n) {
         t_n_ p = lowerbound(key);
@@ -417,7 +421,7 @@ namespace map
     }
 
     inline
-    t_result find(t_err& err, r_ckey key) {
+    t_result find(t_err& err, R_key key) {
       T_ERR_GUARD(err) {
         t_n_ n = named::get(ids_.get_size());
         if (n) {
@@ -434,13 +438,13 @@ namespace map
     }
 
     inline
-    t_cresult find(r_ckey key) const {
+    t_cresult find(R_key key) const {
       t_n_ n = named::get(ids_.get_size());
       if (n) {
         t_n_ p = lowerbound(key);
         if (p < n) {
           t_id id{ids_[p]};
-          p_ckeyvalue ptr = store_.get(id);
+          P_keyvalue ptr = store_.get(id);
           if (!C::operator()(key, ptr->key))
             return {id, t_ix{p}, ptr};
         }
@@ -449,14 +453,14 @@ namespace map
     }
 
     inline
-    t_cresult find(t_err& err, r_ckey key) const {
+    t_cresult find(t_err& err, R_key key) const {
       T_ERR_GUARD(err) {
         t_n_ n = named::get(ids_.get_size());
         if (n) {
           t_n_ p = lowerbound(key);
           if (p < n) {
             t_id id{ids_[p]};
-            p_ckeyvalue ptr = store_.get(id);
+            P_keyvalue ptr = store_.get(id);
             if (!C::operator()(key, ptr->key))
               return {id, t_ix{p}, ptr};
           }
@@ -497,14 +501,14 @@ namespace map
     }
 
     inline
-    p_ckeyvalue get(t_ix ix) const {
+    P_keyvalue get(t_ix ix) const {
       if (named::get(ix) < named::get(ids_.get_size()))
         return &store_.get(*ids_.get(ix))->keyvalue;
       return nullptr;
     }
 
     inline
-    p_ckeyvalue get(t_err& err, t_ix ix) const {
+    P_keyvalue get(t_err& err, t_ix ix) const {
       T_ERR_GUARD(err) {
         if (named::get(ix) < named::get(ids_.get_size()))
           return &store_.get(*ids_.get(ix))->keyvalue;
@@ -531,7 +535,7 @@ namespace map
     }
 
     inline
-    p_ckeyvalue get(t_id id) const {
+    P_keyvalue get(t_id id) const {
       auto entry = store_.get(id);
       if (entry)
         return &entry->keyvalue;
@@ -539,7 +543,7 @@ namespace map
     }
 
     inline
-    p_ckeyvalue get(t_err& err, t_id id) const {
+    P_keyvalue get(t_err& err, t_id id) const {
       T_ERR_GUARD(err) {
         auto entry = store_.get(id);
         if (entry)
@@ -614,7 +618,7 @@ namespace map
 
   private:
     inline
-    t_ix lowerbound_(r_ckey key) const {
+    t_ix lowerbound_(R_key key) const {
       t_ix_ ix = 0;
       for (t_n_ range = named::get(get_size()); range;) {
         t_n_ leap = range/2;
