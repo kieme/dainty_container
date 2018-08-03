@@ -63,13 +63,13 @@ namespace ptr
 
     inline
     ~t_passable_ptr() {
-      if (deleter_)
+      if (deleter_ && ptr_)
         deleter_(ptr_);
     }
 
     inline
     t_passable_ptr& operator=(t_passable_ptr&& ptr) {
-      if (deleter_)
+      if (deleter_ && ptr_)
         deleter_(ptr_);
       ptr_     = named::reset(ptr.ptr_);
       deleter_ = named::reset(ptr.deleter_);
@@ -119,13 +119,13 @@ namespace ptr
 
     inline
     ~t_passable_ptr() {
-      if (deleter_)
+      if (deleter_ && ptr_)
         deleter_(ptr_);
     }
 
     inline
     t_passable_ptr& operator=(t_passable_ptr&& ptr) {
-      if (deleter_)
+      if (deleter_ && ptr_)
         deleter_(ptr_);
       ptr_     = named::reset(ptr.ptr_);
       deleter_ = named::reset(ptr.deleter_);
