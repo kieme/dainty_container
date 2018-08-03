@@ -61,6 +61,12 @@ namespace valuestore
     return new (ptr) T(std::move(value));
   }
 
+  template<typename T, typename... Args>
+  inline
+  T* emplace_construct_(T* ptr, Args&&... args) {
+    return new (ptr) T(std::forward<Args>(args)...);
+  }
+
   template<typename T>
   inline
   void destruct_(T* ptr) {
@@ -96,6 +102,11 @@ namespace valuestore
 
     p_value move_construct(x_value value) {
       return construct_(ptr(), std::move(value));
+    }
+
+    template<typename... Args>
+    p_value emplace_construct(Args&&... args) {
+      return emplace_construct_(ptr(), std::forward<Args>(args)...);
     }
 
     t_void destruct() {
