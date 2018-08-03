@@ -260,7 +260,7 @@ namespace chained_queue
     }
 
     p_item get_tail(R_store) {
-      return chain_.tail;
+      return get(chain_.cnt) ? chain_.tail : nullptr;
     }
 
     t_bool is_empty(R_store) const {

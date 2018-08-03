@@ -49,8 +49,8 @@ namespace list
   class t_list_impl_ {
   public:
     using t_entry = typename named::t_prefix<valuestore::t_valuestore<T>>::t_;
-    using p_store = typename named::t_prefix<t_entry>::t_p;
-    using P_store = typename named::t_prefix<t_entry>::t_P;
+    using p_store = typename named::t_prefix<t_entry>::p_;
+    using P_store = typename named::t_prefix<t_entry>::P_;
     using t_value = typename named::t_prefix<T>::t_;
     using p_value = typename named::t_prefix<T>::p_;
     using P_value = typename named::t_prefix<T>::P_;
