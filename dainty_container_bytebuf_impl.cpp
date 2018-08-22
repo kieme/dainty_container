@@ -39,29 +39,29 @@ namespace bytebuf
 
 //////////////////////////////////////////////////////////////////////////////
 
-  p_byte alloc_(t_n_ n) {
-    p_byte byte = nullptr;
+  p_bytes alloc_(t_n_ n) {
+    p_bytes bytes = nullptr;
     if (n) {
-      byte = (p_byte)::malloc(n);
-      if (!byte)
-        named::assert_now(P_cstr(""));
+      bytes = (p_bytes)::malloc(n);
+      if (!bytes)
+        named::assert_now(P_cstr("bytebuf: allocation failed"));
     } else
-      named::assert_now(P_cstr(""));
-    return byte;
+      named::assert_now(P_cstr("bytebuf: zero byte allocation is invalid"));
+    return bytes;
   }
 
-  t_void dealloc_(p_byte byte) {
-    if (byte)
-      ::free(byte);
+  t_void dealloc_(p_bytes bytes) {
+    if (bytes)
+      ::free(bytes);
     else
-      named::assert_now(P_cstr(""));
+      named::assert_now(P_cstr("bytebuf: trying to free an nullptr"));
   }
 
-  t_void copy_(p_byte dst, t_n_ dst_n, P_byte src, t_n_ src_n) {
+  t_void copy_(p_bytes dst, t_n_ dst_n, P_bytes src, t_n_ src_n) {
     if (src_n <= dst_n)
       ::memcpy(dst, src, src_n);
     else
-      named::assert_now(P_cstr(""));
+      named::assert_now(P_cstr("bytebuf: copy would be truncated"));
   }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -55,11 +55,14 @@ namespace bytebuf
   using r_byte = named::t_prefix<t_byte>::r_;
   using R_byte = named::t_prefix<t_byte>::R_;
 
+  using p_bytes = p_byte;
+  using P_bytes = P_byte;
+
 ///////////////////////////////////////////////////////////////////////////////
 
-  p_byte alloc_  (t_n_);
-  t_void dealloc_(p_byte);
-  t_void copy_   (p_byte, t_n_, P_byte, t_n_);
+  p_bytes alloc_  (t_n_);
+  t_void  dealloc_(p_bytes);
+  t_void  copy_   (p_bytes, t_n_, P_bytes, t_n_);
 
 ///////////////////////////////////////////////////////////////////////////////
 }
