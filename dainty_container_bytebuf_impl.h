@@ -28,6 +28,7 @@
 #define _DAINTY_CONTAINER_BYTEBUF_IMPL_H_
 
 #include "dainty_named.h"
+#include "dainty_named_range.h"
 #include "dainty_container_err.h"
 
 namespace dainty
@@ -55,14 +56,36 @@ namespace bytebuf
   using r_byte = named::t_prefix<t_byte>::r_;
   using R_byte = named::t_prefix<t_byte>::R_;
 
-  using p_bytes = p_byte;
-  using P_bytes = P_byte;
+  enum t_view_tag_ { };
+  using t_view  = named::range::t_range <t_byte, t_view_tag_>;
+  using t_cview = named::range::t_crange<t_byte, t_view_tag_>;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  p_bytes alloc_  (t_n_);
-  t_void  dealloc_(p_bytes);
-  t_void  copy_   (p_bytes, t_n_, P_bytes, t_n_);
+  p_byte  alloc_   (t_n_);
+  t_void  dealloc_ (p_byte);
+  t_void  copy_    (p_byte, t_n_, P_byte, t_n_);
+  t_bool  is_equal_(P_byte, P_byte, t_n_);
+
+  t_view  mk_view_ (p_byte, t_n_);
+  t_view  mk_view_ (p_byte, t_n_, t_ix_);
+  t_view  mk_view_ (p_byte, t_n_, t_ix_, t_ix_);
+
+  t_cview mk_cview_(P_byte, t_n_);
+  t_cview mk_cview_(P_byte, t_n_, t_ix_);
+  t_cview mk_cview_(P_byte, t_n_, t_ix_, t_ix_);
+
+///////////////////////////////////////////////////////////////////////////////
+
+  inline
+  t_bool operator==(const t_cview& lh, const t_cview& rh) {
+    return lh.n == rh.n && is_equal_(lh.item, rh.item, get(rh.n));
+  }
+
+  inline
+  t_bool operator!=(const t_cview& lh, const t_cview& rh) {
+    return lh.n != rh.n || !is_equal_(lh.item, rh.item, get(rh.n));
+  }
 
 ///////////////////////////////////////////////////////////////////////////////
 }
