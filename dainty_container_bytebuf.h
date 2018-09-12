@@ -76,6 +76,7 @@ namespace bytebuf
 
     constexpr static t_bool on_heap = true;
 
+     t_bytebuf();
      t_bytebuf(t_n max);
      t_bytebuf(t_bytebuf&&);
      t_bytebuf(const t_bytebuf&);
@@ -214,6 +215,11 @@ namespace bytebuf
   }
 
 ///////////////////////////////////////////////////////////////////////////////
+
+  template<typename TAG>
+  inline
+  t_bytebuf<TAG, 0>::t_bytebuf() : max_{0}, store_{nullptr} {
+  }
 
   template<typename TAG>
   inline
