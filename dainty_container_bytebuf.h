@@ -119,14 +119,32 @@ namespace bytebuf
 
   template<typename TAG, t_n_ N>
   inline
+  t_view mk_view(const t_bytebuf<TAG, N>& buf) {
+    return mk_cview_(buf.ptr(), get(buf.get_capacity()));
+  }
+
+  template<typename TAG, t_n_ N>
+  inline
   t_view mk_view(t_bytebuf<TAG, N>& buf, t_ix begin) {
     return mk_view_(buf.ptr(), get(buf.get_capacity()), get(begin));
   }
 
   template<typename TAG, t_n_ N>
   inline
+  t_view mk_view(const t_bytebuf<TAG, N>& buf, t_ix begin) {
+    return mk_cview_(buf.ptr(), get(buf.get_capacity()), get(begin));
+  }
+
+  template<typename TAG, t_n_ N>
+  inline
   t_view mk_view(t_bytebuf<TAG, N>& buf, t_ix begin, t_ix end) {
     return mk_view_(buf.ptr(), get(buf.get_capacity()), get(begin), get(end));
+  }
+
+  template<typename TAG, t_n_ N>
+  inline
+  t_view mk_view(const t_bytebuf<TAG, N>& buf, t_ix begin, t_ix end) {
+    return mk_cview_(buf.ptr(), get(buf.get_capacity()), get(begin), get(end));
   }
 
   template<typename TAG, t_n_ N>
