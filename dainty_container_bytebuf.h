@@ -35,6 +35,9 @@ namespace container
 {
 namespace bytebuf
 {
+  using named::t_prefix;
+  using named::P_cstr;
+
 ///////////////////////////////////////////////////////////////////////////////
 
   template<typename TAG, t_n_ N = 0>
@@ -107,6 +110,75 @@ namespace bytebuf
 
     t_n_   max_   = 0;
     p_byte store_ = nullptr;
+  };
+
+///////////////////////////////////////////////////////////////////////////////
+
+  template<typename T, typename P, typename U>
+  inline P resolve_(U u, t_n n) {
+    if ((reinterpret_cast<named::t_uintptr>(u) % alignof(T)) ||
+        (sizeof(T) != get(n)))
+      assert_now(P_cstr{"not aligned and/or size is wrong"});
+    return reinterpret_cast<P>(u);
+  }
+
+///////////////////////////////////////////////////////////////////////////////
+
+  template<typename T>
+  class t_ptr {
+  public:
+    using t_value = T;
+    using r_value = typename t_prefix<t_value>::r_;
+    using R_value = typename t_prefix<t_value>::R_;
+    using p_value = typename t_prefix<t_value>::p_;
+    using P_value = typename t_prefix<t_value>::P_;
+
+    t_ptr() = default;
+    t_ptr(t_view view) : ptr_(resolve_<t_value, p_value>(view.item, view.n)) {
+    }
+
+    t_ptr& operator=(const t_view& view) {
+      ptr_ = resolve_<t_value, p_value>(view.item, view.n);
+      return *this;
+    }
+
+    operator t_validity() const { return ptr_ ? VALID : INVALID; }
+
+    p_value operator->()        { return ptr_; }
+    P_value operator->() const  { return ptr_; }
+
+    r_value operator*()         { return *ptr_; }
+    R_value operator*() const   { return *ptr_; }
+
+  private:
+    p_value ptr_ = nullptr;
+  };
+
+///////////////////////////////////////////////////////////////////////////////
+
+  template<typename T>
+  class t_cptr {
+  public:
+    using t_value = T;
+    using R_value = typename t_prefix<t_value>::R_;
+    using P_value = typename t_prefix<t_value>::P_;
+
+    t_cptr() = default;
+    t_cptr(t_cview view) : ptr_(resolve_<t_value, P_value>(view.item, view.n)) {
+    }
+
+    t_cptr& operator=(const t_cview& view) {
+      ptr_ = resolve_<t_value, P_value>(view.item, view.n);
+      return *this;
+    }
+
+    operator t_validity() const  { return ptr_ ? VALID : INVALID; }
+
+    P_value operator->() const   { return  ptr_; }
+    R_value operator* () const   { return *ptr_; }
+
+  private:
+    P_value ptr_ = nullptr;
   };
 
 ///////////////////////////////////////////////////////////////////////////////
