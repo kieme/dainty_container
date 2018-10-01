@@ -27,6 +27,7 @@
 #ifndef _DAINTY_CONTAINER_BYTEBUF_H_
 #define _DAINTY_CONTAINER_BYTEBUF_H_
 
+#include <type_traits>
 #include "dainty_container_bytebuf_impl.h"
 
 namespace dainty
@@ -127,7 +128,7 @@ namespace bytebuf
   template<typename T>
   class t_ptr {
   public:
-    using t_value = T;
+    using t_value = std::enable_if_t<std::is_standard_layout_v<T>, T>;
     using r_value = typename t_prefix<t_value>::r_;
     using R_value = typename t_prefix<t_value>::R_;
     using p_value = typename t_prefix<t_value>::p_;
@@ -159,7 +160,7 @@ namespace bytebuf
   template<typename T>
   class t_cptr {
   public:
-    using t_value = T;
+    using t_value = std::enable_if_t<std::is_standard_layout_v<T>, T>;
     using R_value = typename t_prefix<t_value>::R_;
     using P_value = typename t_prefix<t_value>::P_;
 
